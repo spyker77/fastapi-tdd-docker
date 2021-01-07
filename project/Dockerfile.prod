@@ -27,7 +27,8 @@ RUN apt-get update \
 # install python dependencies
 COPY ./requirements.txt .
 RUN pip install --upgrade pip \
-    && pip install -r requirements.txt
+    && pip install -r requirements.txt \
+    && pip install uvicorn[standard]
 
 # add app
 COPY . .
@@ -39,5 +40,4 @@ RUN chown -R app:app $APP_HOME
 USER app
 
 # run gunicorn
-# CMD gunicorn --bind 0.0.0.0:$PORT app.main:app -k uvicorn.workers.UvicornWorker
-CMD uvicorn app.main:app --host 0.0.0.0 --port $PORT
+CMD gunicorn --bind 0.0.0.0:$PORT app.main:app -k uvicorn.workers.UvicornWorker
