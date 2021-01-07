@@ -1,0 +1,8 @@
+env
+.dockerignore
+.pytest_cache
+.coverage
+htmlcov
+Dockerfile
+Dockerfile.prod
+heroku_deploy.sh
