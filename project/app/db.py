@@ -1,25 +1,38 @@
 import logging
 import os
+import re
+from urllib.parse import urlparse
 
 from fastapi import FastAPI
 from tortoise import Tortoise, run_async
 from tortoise.contrib.fastapi import register_tortoise
 
-DB_URL = os.environ.get("DATABASE_URL")
-if DB_URL:
-    DB_URL + "?sslmode=require"
+PARSED_DB_URL = urlparse(os.environ.get("DATABASE_URL"))
+DB_CREDENTIALS = re.split(":|@", str(PARSED_DB_URL.netloc)) + [
+    str(PARSED_DB_URL.path).lstrip("/")
+]
 
-# Helper: https://github.com/testdrivenio/fastapi-tortoise-aerich
 TORTOISE_ORM = {
-    "connections": {"default": DB_URL},
+    "connections": {
+        "default": {
+            "engine": "tortoise.backends.asyncpg",
+            "credentials": {
+                "user": DB_CREDENTIALS[0],
+                "password": DB_CREDENTIALS[1],
+                "host": DB_CREDENTIALS[2],
+                "port": DB_CREDENTIALS[3],
+                "database": DB_CREDENTIALS[4],
+                "ssl": "require" if os.environ.get("ENVIRONMENT") == "prod" else False,
+            },
+        },
+    },
     "apps": {
         "models": {
-            "models": ["app.models.tortoise", "aerich.models"],
+            "models": ["app.models.tortoise"],
             "default_connection": "default",
         },
     },
 }
-
 
 log = logging.getLogger("uvicorn")
 
@@ -27,8 +40,7 @@ log = logging.getLogger("uvicorn")
 def init_db(app: FastAPI) -> None:
     register_tortoise(
         app,
-        db_url=DB_URL,
-        modules={"models": ["app.models.tortoise"]},
+        config=TORTOISE_ORM,
         generate_schemas=False,
         add_exception_handlers=True,
     )
@@ -36,10 +48,7 @@ def init_db(app: FastAPI) -> None:
 
 async def generate_schema() -> None:
     log.info("Initializing Tortoise...")
-    await Tortoise.init(
-        db_url=DB_URL,
-        modules={"models": ["models.tortoise"]},
-    )
+    await Tortoise.init(config=TORTOISE_ORM)
     log.info("Generating database schema via Tortoise...")
     await Tortoise.generate_schemas()
     await Tortoise.close_connections()
