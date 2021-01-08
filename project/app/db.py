@@ -8,31 +8,46 @@ from tortoise import Tortoise, run_async
 from tortoise.contrib.fastapi import register_tortoise
 
 PARSED_DB_URL = urlparse(os.environ.get("DATABASE_URL"))
-DB_CREDENTIALS = re.split(":|@", str(PARSED_DB_URL.netloc)) + [
-    str(PARSED_DB_URL.path).lstrip("/")
-]
 
-TORTOISE_ORM = {
-    "connections": {
-        "default": {
-            "engine": "tortoise.backends.asyncpg",
-            "credentials": {
-                "user": DB_CREDENTIALS[0],
-                "password": DB_CREDENTIALS[1],
-                "host": DB_CREDENTIALS[2],
-                "port": DB_CREDENTIALS[3],
-                "database": DB_CREDENTIALS[4],
-                "ssl": "require" if os.environ.get("ENVIRONMENT") == "prod" else False,
+# Check DB type to avoid errors caused by incorrect parsing of credentials
+if "sqlite" in PARSED_DB_URL:
+    TORTOISE_ORM = {
+        "connections": {"default": os.environ.get("DATABASE_URL")},
+        "apps": {
+            "models": {
+                "models": ["app.models.tortoise"],
+                "default_connection": "default",
             },
         },
-    },
-    "apps": {
-        "models": {
-            "models": ["app.models.tortoise"],
-            "default_connection": "default",
+    }
+else:
+    DB_CREDENTIALS = re.split(":|@", str(PARSED_DB_URL.netloc)) + [
+        str(PARSED_DB_URL.path).lstrip("/")
+    ]
+    TORTOISE_ORM = {
+        "connections": {
+            "default": {
+                "engine": "tortoise.backends.asyncpg",
+                "credentials": {
+                    "user": DB_CREDENTIALS[0],
+                    "password": DB_CREDENTIALS[1],
+                    "host": DB_CREDENTIALS[2],
+                    "port": DB_CREDENTIALS[3],
+                    "database": DB_CREDENTIALS[4],
+                    "ssl": "require"
+                    if os.environ.get("ENVIRONMENT") == "prod"
+                    else False,
+                },
+            },
         },
-    },
-}
+        "apps": {
+            "models": {
+                "models": ["app.models.tortoise"],
+                "default_connection": "default",
+            },
+        },
+    }
+
 
 log = logging.getLogger("uvicorn")
 
