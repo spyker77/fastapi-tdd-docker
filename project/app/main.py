@@ -1,21 +1,9 @@
 import logging
-import os
 
 from fastapi import FastAPI
 
 from app.api import ping, summaries
 from app.db import init_db
-
-# Helper: https://github.com/testdrivenio/fastapi-tortoise-aerich
-TORTOISE_ORM = {
-    "connections": {"default": os.environ.get("DATABASE_URL")},
-    "apps": {
-        "models": {
-            "models": ["app.models.tortoise", "aerich.models"],
-            "default_connection": "default",
-        },
-    },
-}
 
 log = logging.getLogger("uvicorn")
 
