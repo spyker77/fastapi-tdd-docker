@@ -4,4 +4,4 @@ __pycache__
 .coverage
 htmlcov
 env
-heroku_deploy.sh
+deploy.sh

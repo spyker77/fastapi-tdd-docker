@@ -5,4 +5,4 @@ env
 htmlcov
 Dockerfile
 Dockerfile.prod
-heroku_deploy.sh
+deploy.sh
