@@ -7,29 +7,34 @@ from fastapi import FastAPI
 from tortoise import Tortoise, run_async
 from tortoise.contrib.fastapi import register_tortoise
 
-PARSED_DB_URL = urlparse(os.environ.get("DATABASE_URL"))
-DB_CREDENTIALS = re.split(":|@", str(PARSED_DB_URL.netloc)) + [
-    str(PARSED_DB_URL.path).lstrip("/")
-]
+# Special case of parsing the database url tested on SQLite and PostgreSQL.
+# It's done to enable sslmode and prevent database connection error in production.
+db_url = os.environ.get("DATABASE_URL")
+if (db_url is not None) and ("sqlite" in db_url):
+    DB_CONNECTION = {"default": db_url}
+elif db_url is not None:
+    parsed_db_url = urlparse(db_url)
+    db_credentials = re.split(":|@", str(parsed_db_url.netloc)) + [
+        str(parsed_db_url.path).lstrip("/")
+    ]
+    DB_CONNECTION = {
+        "default": {
+            "engine": "tortoise.backends.asyncpg",
+            "credentials": {
+                "user": db_credentials[0],
+                "password": db_credentials[1],
+                "host": db_credentials[2],
+                "port": db_credentials[3],
+                "database": db_credentials[4],
+                "ssl": "require" if os.environ.get("ENVIRONMENT") == "prod" else False,
+            },
+        }
+    }
 
 
 # Helper for migrations: https://github.com/testdrivenio/fastapi-tortoise-aerich
 TORTOISE_ORM = {
-    "connections": {
-        "default": os.environ.get("DATABASE_URL")
-        if "sqlite" in PARSED_DB_URL
-        else {
-            "engine": "tortoise.backends.asyncpg",
-            "credentials": {
-                "user": DB_CREDENTIALS[0],
-                "password": DB_CREDENTIALS[1],
-                "host": DB_CREDENTIALS[2],
-                "port": DB_CREDENTIALS[3],
-                "database": DB_CREDENTIALS[4],
-                "ssl": "require" if os.environ.get("ENVIRONMENT") == "prod" else False,
-            },
-        }
-    },
+    "connections": DB_CONNECTION,
     "apps": {
         "models": {
             "models": ["app.models.tortoise", "aerich.models"],
@@ -46,23 +51,7 @@ def init_db(app: FastAPI) -> None:
     register_tortoise(
         app,
         config={
-            "connections": {
-                "default": os.environ.get("DATABASE_URL")
-                if "sqlite" in PARSED_DB_URL
-                else {
-                    "engine": "tortoise.backends.asyncpg",
-                    "credentials": {
-                        "user": DB_CREDENTIALS[0],
-                        "password": DB_CREDENTIALS[1],
-                        "host": DB_CREDENTIALS[2],
-                        "port": DB_CREDENTIALS[3],
-                        "database": DB_CREDENTIALS[4],
-                        "ssl": "require"
-                        if os.environ.get("ENVIRONMENT") == "prod"
-                        else False,
-                    },
-                }
-            },
+            "connections": DB_CONNECTION,
             "apps": {
                 "models": {
                     "models": ["app.models.tortoise"],
@@ -79,23 +68,7 @@ async def generate_schema() -> None:
     log.info("Initializing Tortoise...")
     await Tortoise.init(
         config={
-            "connections": {
-                "default": os.environ.get("DATABASE_URL")
-                if "sqlite" in PARSED_DB_URL
-                else {
-                    "engine": "tortoise.backends.asyncpg",
-                    "credentials": {
-                        "user": DB_CREDENTIALS[0],
-                        "password": DB_CREDENTIALS[1],
-                        "host": DB_CREDENTIALS[2],
-                        "port": DB_CREDENTIALS[3],
-                        "database": DB_CREDENTIALS[4],
-                        "ssl": "require"
-                        if os.environ.get("ENVIRONMENT") == "prod"
-                        else False,
-                    },
-                }
-            },
+            "connections": DB_CONNECTION,
             "apps": {
                 "models": {
                     "models": ["models.tortoise"],
