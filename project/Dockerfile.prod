@@ -1,3 +1,42 @@
+###########
+# BUILDER #
+###########
+
+# Pull official base image
+FROM python:3.8.7-slim-buster as builder
+
+# Install system dependencies
+RUN apt-get update \
+    && apt-get install -y \
+    make netcat gcc postgresql \
+    # Dependencies for newspaper3k
+    libxml2-dev libxslt-dev libjpeg-dev zlib1g-dev libpng-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set work directory
+WORKDIR /usr/src/app
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Install dependencies
+RUN pip install --upgrade pip
+COPY requirements.txt .
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
+
+# Lint
+COPY . /usr/src/app/
+RUN pip install black==20.8b1 flake8===3.8.4 isort==5.6.4
+RUN flake8 .
+RUN black --exclude=migrations .
+RUN isort .
+
+
+#########
+# FINAL #
+#########
+
 # Pull official base image
 FROM python:3.8.7-slim-buster
 
@@ -21,23 +60,27 @@ ENV TESTING=0
 
 # Install system dependencies
 RUN apt-get update \
-    && apt-get install -y make netcat gcc postgresql \
+    && apt-get install -y \
+    make netcat gcc postgresql \
+    # Dependencies for newspaper3k
+    libxml2-dev libxslt-dev libjpeg-dev zlib1g-dev libpng-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install python dependencies
-COPY requirements.txt .
+COPY --from=builder /usr/src/app/wheels /wheels
+COPY --from=builder /usr/src/app/requirements.txt .
 RUN pip install --upgrade pip \
-    && pip install -r requirements.txt \
+    && pip install --no-cache /wheels/* \
     && pip install uvicorn[standard]
 
 # Add the app
 COPY . .
 
 # Chown all the files to the app user
-RUN chown -R app:app $APP_HOME
+RUN chown -R app:app $HOME
 
 # Change to the app user
 USER app
 
-# run gunicorn
+# Run gunicorn
 CMD gunicorn --bind 0.0.0.0:$PORT app.main:app -k uvicorn.workers.UvicornWorker
