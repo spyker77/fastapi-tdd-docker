@@ -1,42 +1,42 @@
-# pull official base image
+# Pull official base image
 FROM python:3.8.7-slim-buster
 
-# create directory for the app user
+# Create directory for the app user
 RUN mkdir -p /home/app
 
-# create the app user
+# Create the app user
 RUN addgroup --system app && adduser --system --group app
 
-# create the appropriate directories
+# Create an appropriate directories
 ENV HOME=/home/app
 ENV APP_HOME=/home/app/web
 RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
 
-# set environment variables
+# Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV ENVIRONMENT=prod
 ENV TESTING=0
 
-# install system dependencies
+# Install system dependencies
 RUN apt-get update \
     && apt-get install -y make netcat gcc postgresql \
     && rm -rf /var/lib/apt/lists/*
 
-# install python dependencies
-COPY ./requirements.txt .
+# Install python dependencies
+COPY requirements.txt .
 RUN pip install --upgrade pip \
     && pip install -r requirements.txt \
     && pip install uvicorn[standard]
 
-# add app
+# Add the app
 COPY . .
 
-# chown all the files to the app user
+# Chown all the files to the app user
 RUN chown -R app:app $APP_HOME
 
-# change to the app user
+# Change to the app user
 USER app
 
 # run gunicorn

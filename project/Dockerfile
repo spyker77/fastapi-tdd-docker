@@ -1,29 +1,32 @@
-# pull official base image
+# Pull official base image
 FROM python:3.9-slim-buster
 
-# set working directory
+# Set working directory
 WORKDIR /usr/src/app
 
-# set environment variables
+# Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# install system dependencies
+# Install system dependencies
 RUN apt-get update \
-    && apt-get install -y netcat gcc postgresql \
+    && apt-get install -y \
+    netcat gcc postgresql \
+    # Dependencies for newspaper3k
+    libxml2-dev libxslt-dev libjpeg-dev zlib1g-dev libpng-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# install python dependencies
-COPY ./requirements.txt .
+# Install python dependencies
+COPY requirements.txt .
 RUN pip install --upgrade pip \
     && pip install -r requirements.txt
 
-# add app
+# Add the app
 COPY . .
 
-# add entrypoint.sh
-COPY ./entrypoint.sh .
+# Add entrypoint.sh
+COPY entrypoint.sh .
 RUN chmod +x /usr/src/app/entrypoint.sh
 
-# run entrypoint.sh
+# Run entrypoint.sh
 ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
