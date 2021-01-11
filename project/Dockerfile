@@ -18,8 +18,9 @@ RUN apt-get update \
 
 # Install python dependencies
 COPY requirements.txt .
+COPY requirements-dev.txt .
 RUN pip install --upgrade pip \
-    && pip install -r requirements.txt
+    && pip install -r requirements-dev.txt
 
 # Add the app
 COPY . .
