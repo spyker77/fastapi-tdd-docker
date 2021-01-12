@@ -3,12 +3,12 @@
 ###########
 
 # Pull official base image
-FROM python:3.8.7-slim-buster as builder
+FROM python:3.9-slim-buster as builder
 
 # Install system dependencies
 RUN apt-get update \
     && apt-get install -y \
-    make netcat gcc postgresql \
+    netcat gcc postgresql \
     # Dependencies for newspaper3k
     libxml2-dev libxslt-dev libjpeg-dev zlib1g-dev libpng-dev \
     && rm -rf /var/lib/apt/lists/*
@@ -21,13 +21,13 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Install dependencies
-RUN pip install --upgrade pip
 COPY requirements.txt .
+RUN pip install --upgrade pip
 RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
 
 # Lint
 COPY . /usr/src/app/
-RUN pip install black==20.8b1 flake8===3.8.4 isort==5.6.4
+RUN pip install black flake8 isort
 RUN flake8 .
 RUN black --exclude=migrations .
 RUN isort .
@@ -38,7 +38,7 @@ RUN isort .
 #########
 
 # Pull official base image
-FROM python:3.8.7-slim-buster
+FROM python:3.9-slim-buster
 
 # Create directory for the app user
 RUN mkdir -p /home/app
