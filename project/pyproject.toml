@@ -6,6 +6,7 @@ exclude = '''
     | \.pytest_cache
     | env
     | htmlcov
+    | migrations
   )/
 )
 '''
