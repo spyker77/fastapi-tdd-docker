@@ -11,7 +11,7 @@ ENV PYTHONUNBUFFERED=1
 # Install system dependencies
 RUN apt-get update \
     && apt-get install -y \
-    netcat gcc postgresql \
+    make netcat gcc postgresql \
     # Dependencies for newspaper3k
     libxml2-dev libxslt-dev libjpeg-dev zlib1g-dev libpng-dev \
     && rm -rf /var/lib/apt/lists/*
