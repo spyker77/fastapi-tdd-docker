@@ -10,23 +10,21 @@ ENV PYTHONUNBUFFERED=1
 
 # Install system dependencies
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-    make netcat gcc postgresql \
-    # Dependencies for newspaper3k
-    libxml2-dev libxslt-dev libjpeg-dev zlib1g-dev libpng-dev \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get -y install netcat gcc postgresql \
+    && apt-get clean
 
 # Install python dependencies
-COPY requirements.txt .
-COPY requirements-dev.txt .
+COPY ./pyproject.toml .
 RUN pip install --upgrade pip \
-    && pip install -r requirements-dev.txt
+    && pip install poetry \
+    && poetry export -f requirements.txt --output requirements.txt --dev \
+    && pip install -r requirements.txt
 
-# Add the app
+# Add app
 COPY . .
 
 # Add entrypoint.sh
-COPY entrypoint.sh .
+COPY ./entrypoint.sh .
 RUN chmod +x /usr/src/app/entrypoint.sh
 
 # Run entrypoint.sh

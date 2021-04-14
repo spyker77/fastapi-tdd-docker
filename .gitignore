@@ -1,9 +1,12 @@
 __pycache__
+*.log
+*.pot
+*.pyc
+.vscode
 .DS_Store
-.mypy_cache
-.pytest_cache
 .coverage
-htmlcov
-env
+.coveragerc
+.pytest_cache
+.mypy_cache
 deploy.sh
 docker_password.txt

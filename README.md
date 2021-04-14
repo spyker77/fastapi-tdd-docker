@@ -8,5 +8,4 @@ This is the implementation of [the course](https://testdriven.io/courses/tdd-fas
 -   Dependencies updated to the latest version at the moment
 -   Migrations added via Aerich from Tortoise-ORM
 -   CORSMiddleware used to manually control allowed origins
--   Added a handler for the error caused by forced SSL connection in PostgreSQL with Heroku
--   Changed database test url to use the same url everywhere due to overly complex configuration (or related error otherwise)
+-   Venv replaced with poetry

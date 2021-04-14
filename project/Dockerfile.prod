@@ -7,10 +7,8 @@ FROM python:3.9-slim-buster as builder
 
 # Install system dependencies
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends  \
-    make netcat gcc postgresql \
-    # Dependencies for newspaper3k
-    libxml2-dev libxslt-dev libjpeg-dev zlib1g-dev libpng-dev \
+    && apt-get -y install gcc postgresql \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Set work directory
@@ -21,16 +19,18 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Install dependencies
-COPY requirements.txt .
+COPY ./pyproject.toml .
 RUN pip install --upgrade pip \
+    && pip install poetry \
+    && poetry export -f requirements.txt --output requirements.txt \
     && pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
 
 # Lint
 COPY . /usr/src/app/
-RUN pip install flake8 black isort
-RUN flake8 .
-RUN black .
-RUN isort .
+RUN pip install black flake9 isort \
+    && flake8 . \
+    && black --exclude=migrations . \
+    && isort .
 
 
 #########
@@ -44,9 +44,10 @@ FROM python:3.9-slim-buster
 RUN mkdir -p /home/app
 
 # Create the app user
-RUN addgroup --system app && adduser --system --group app
+RUN addgroup --system app \
+    && adduser --system --group app
 
-# Create an appropriate directories
+# Create the appropriate directories
 ENV HOME=/home/app
 ENV APP_HOME=/home/app/web
 RUN mkdir $APP_HOME
@@ -60,10 +61,8 @@ ENV TESTING=0
 
 # Install system dependencies
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends  \
-    make netcat gcc postgresql \
-    # Dependencies for newspaper3k
-    libxml2-dev libxslt-dev libjpeg-dev zlib1g-dev libpng-dev \
+    && apt-get -y install netcat gcc postgresql \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Install python dependencies
@@ -71,9 +70,9 @@ COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
 RUN pip install --upgrade pip \
     && pip install --no-cache /wheels/* \
-    && pip install uvicorn[standard]
+    && pip install "uvicorn[standard]==0.13.4"
 
-# Add the app
+# Add app
 COPY . .
 
 # Chown all the files to the app user

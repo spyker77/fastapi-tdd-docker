@@ -20,8 +20,7 @@ async def create_summary(
 ) -> SummaryResponseSchema:
     summary_id = await crud.post(payload)
     background_tasks.add_task(generate_summary, summary_id, payload.url)
-    response_object = SummaryResponseSchema(id=summary_id, url=payload.url)
-    return response_object
+    return SummaryResponseSchema(id=summary_id, url=payload.url)
 
 
 @router.get("/{id}/", response_model=SummarySchema)
@@ -37,15 +36,6 @@ async def read_all_summaries() -> List[SummarySchema]:
     return await crud.get_all()
 
 
-@router.delete("/{id}/", response_model=SummaryResponseSchema)
-async def delete_summary(id: int = Path(..., gt=0)) -> SummaryResponseSchema:
-    summary = await crud.get(id)
-    if not summary:
-        raise HTTPException(status_code=404, detail="Summary not found")
-    await crud.delete(id)
-    return summary
-
-
 @router.put("/{id}/", response_model=SummarySchema)
 async def update_summary(
     payload: SummaryUpdatePayloadSchema, id: int = Path(..., gt=0)
@@ -54,3 +44,12 @@ async def update_summary(
     if not summary:
         raise HTTPException(status_code=404, detail="Summary not found")
     return summary
+
+
+@router.delete("/{id}/", response_model=SummaryResponseSchema)
+async def delete_summary(id: int = Path(..., gt=0)) -> SummaryResponseSchema:
+    summary = await crud.get(id)
+    if not summary:
+        raise HTTPException(status_code=404, detail="Summary not found")
+    await crud.delete(id)
+    return SummaryResponseSchema(id=summary["id"], url=summary["url"])

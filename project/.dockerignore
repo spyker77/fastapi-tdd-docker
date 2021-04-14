@@ -1,9 +1,13 @@
-env
+*.log
+*.pot
+*.pyc
+.vscode
 .DS_Store
+.coverage
+.coveragerc
 .dockerignore
 .pytest_cache
-.coverage
-htmlcov
+.mypy_cache
 Dockerfile
 Dockerfile.prod
 deploy.sh

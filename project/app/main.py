@@ -6,9 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api import ping, summaries
 from app.db import init_db
 
-log = logging.getLogger("uvicorn")
-
-origins = [
+ORIGINS = [
     "http://guarded-waters-54698.herokuapp.com",
     "https://guarded-waters-54698.herokuapp.com",
     "http://localhost",
@@ -16,11 +14,14 @@ origins = [
 ]
 
 
+log = logging.getLogger("uvicorn")
+
+
 def create_application() -> FastAPI:
     application = FastAPI()
     application.add_middleware(
         CORSMiddleware,
-        allow_origins=origins,
+        allow_origins=ORIGINS,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

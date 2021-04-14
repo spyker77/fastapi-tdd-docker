@@ -77,7 +77,7 @@ jobs:
             -p 5003:8765 \
             ${{ env.IMAGE }}-final:latest
       - name: Install requirements
-        run: docker exec fastapi-tdd pip install black flake8 isort pytest
+        run: docker exec fastapi-tdd pip install black flake9 isort pytest
       - name: Pytest
         run: docker exec fastapi-tdd python -m pytest .
       - name: Flake8
