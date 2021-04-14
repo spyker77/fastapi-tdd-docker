@@ -10,8 +10,9 @@ ENV PYTHONUNBUFFERED=1
 
 # Install system dependencies
 RUN apt-get update \
+    && apt-get upgrade -y \
     && apt-get -y install netcat gcc postgresql \
-    && apt-get clean
+    && rm -rf /var/lib/apt/lists/*
 
 # Install python dependencies
 COPY ./pyproject.toml .
