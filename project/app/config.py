@@ -4,13 +4,24 @@ from functools import lru_cache
 
 from pydantic import AnyUrl, BaseSettings
 
+TORTOISE_ORM = {
+    "connections": {"default": os.environ.get("DATABASE_URL")},
+    "apps": {
+        "models": {
+            "models": ["app.models.summary", "aerich.models"],
+            "default_connection": "default",
+        },
+    },
+}
+
+
 log = logging.getLogger("uvicorn")
 
 
 class Settings(BaseSettings):
     environment: str = os.getenv("ENVIRONMENT", "dev")
-    testing: bool = bool(os.getenv("TESTING", 0))
-    database_url: AnyUrl = os.environ.get("DATABASE_URL")
+    testing: bool = os.getenv("TESTING", False)
+    database_url: AnyUrl = os.environ.get("DATABASE_URL", "sqlite://sqlite.db")
 
 
 @lru_cache()

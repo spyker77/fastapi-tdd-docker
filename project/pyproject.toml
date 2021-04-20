@@ -8,6 +8,7 @@ exclude = '''
   )/
 )
 '''
+line-length = 119
 
 [tool.flake8]
 exclude = [".mypy_cache", ".pytest_cache", "migrations"]
@@ -19,7 +20,7 @@ skip_glob = [".mypy_cache", ".pytest_cache", "migrations"]
 
 [tool.poetry]
 authors = ["Evgeni Sautin <evgeni.sautin@gmail.com>"]
-description = ""
+description = "Test-driven development with FastAPI and Docker"
 name = "project"
 version = "0.1.0"
 

@@ -9,3 +9,5 @@ This is the implementation of [the course](https://testdriven.io/courses/tdd-fas
 -   Migrations added via Aerich from Tortoise-ORM
 -   CORSMiddleware used to manually control allowed origins
 -   Venv replaced with poetry
+-   Added versions of the API
+-   Refactored the code

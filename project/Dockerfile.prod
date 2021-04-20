@@ -7,7 +7,6 @@ FROM python:3.9-slim-buster as builder
 
 # Install system dependencies
 RUN apt-get update \
-    && apt-get upgrade -y \
     && apt-get -y install gcc postgresql \
     && rm -rf /var/lib/apt/lists/*
 
@@ -61,7 +60,6 @@ ENV TESTING=0
 
 # Install system dependencies
 RUN apt-get update \
-    && apt-get upgrade -y \
     && apt-get -y install netcat gcc postgresql \
     && rm -rf /var/lib/apt/lists/*
 

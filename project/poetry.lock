@@ -435,7 +435,7 @@ tldextract = ">=2.0.1"
 
 [[package]]
 name = "nltk"
-version = "3.6.1"
+version = "3.6.2"
 description = "Natural Language Toolkit"
 category = "main"
 optional = false
@@ -448,7 +448,7 @@ regex = "*"
 tqdm = "*"
 
 [package.extras]
-all = ["requests", "pyparsing", "numpy", "twython", "gensim (<4.0.0)", "scikit-learn", "scipy", "python-crfsuite", "matplotlib"]
+all = ["matplotlib", "twython", "scipy", "numpy", "gensim (<4.0.0)", "python-crfsuite", "pyparsing", "scikit-learn", "requests"]
 corenlp = ["requests"]
 machine_learning = ["gensim (<4.0.0)", "numpy", "python-crfsuite", "scikit-learn", "scipy"]
 plot = ["matplotlib"]
@@ -1137,8 +1137,8 @@ newspaper3k = [
     {file = "newspaper3k-0.2.8.tar.gz", hash = "sha256:9f1bd3e1fb48f400c715abf875cc7b0a67b7ddcd87f50c9aeeb8fcbbbd9004fb"},
 ]
 nltk = [
-    {file = "nltk-3.6.1-py3-none-any.whl", hash = "sha256:1235660f52ab10fda34d5277096724747f767b2903e1c0c4e14bde013552c9ba"},
-    {file = "nltk-3.6.1.zip", hash = "sha256:cbc2ed576998fcf7cd181eeb3ca029e5f0025b264074b4beb57ce780673f8b86"},
+    {file = "nltk-3.6.2-py3-none-any.whl", hash = "sha256:240e23ab1ab159ef9940777d30c7c72d7e76d91877099218a7585370c11f6b9e"},
+    {file = "nltk-3.6.2.zip", hash = "sha256:57d556abed621ab9be225cc6d2df1edce17572efb67a3d754630c9f8381503eb"},
 ]
 packaging = [
     {file = "packaging-20.9-py2.py3-none-any.whl", hash = "sha256:67714da7f7bc052e064859c05c595155bd1ee9f69f76557e21f051443c20947a"},

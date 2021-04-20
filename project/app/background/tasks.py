@@ -1,7 +1,7 @@
 import nltk
 from newspaper import Article
 
-from app.models.tortoise import TextSummary
+from app.models.summary import TextSummary
 
 
 async def generate_summary(summary_id: int, url: str) -> None:

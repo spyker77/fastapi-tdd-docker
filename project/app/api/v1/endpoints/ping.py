@@ -5,7 +5,7 @@ from app.config import Settings, get_settings
 router = APIRouter()
 
 
-@router.get("/ping")
+@router.get("/ping", name="pong")
 async def pong(settings: Settings = Depends(get_settings)):
     return {
         "ping": "pong!",

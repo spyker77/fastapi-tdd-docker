@@ -10,7 +10,6 @@ ENV PYTHONUNBUFFERED=1
 
 # Install system dependencies
 RUN apt-get update \
-    && apt-get upgrade -y \
     && apt-get -y install netcat gcc postgresql \
     && rm -rf /var/lib/apt/lists/*
 
