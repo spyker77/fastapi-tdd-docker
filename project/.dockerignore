@@ -4,10 +4,10 @@
 .vscode
 .DS_Store
 .coverage
-.coveragerc
 .dockerignore
 .pytest_cache
 .mypy_cache
+htmlcov
 Dockerfile
 Dockerfile.prod
 deploy.sh

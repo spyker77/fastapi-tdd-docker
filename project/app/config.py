@@ -4,17 +4,6 @@ from functools import lru_cache
 
 from pydantic import AnyUrl, BaseSettings
 
-TORTOISE_ORM = {
-    "connections": {"default": os.environ.get("DATABASE_URL")},
-    "apps": {
-        "models": {
-            "models": ["app.models.summary", "aerich.models"],
-            "default_connection": "default",
-        },
-    },
-}
-
-
 log = logging.getLogger("uvicorn")
 
 

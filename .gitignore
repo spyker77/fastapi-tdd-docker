@@ -5,8 +5,8 @@ __pycache__
 .vscode
 .DS_Store
 .coverage
-.coveragerc
 .pytest_cache
 .mypy_cache
+htmlcov
 deploy.sh
 docker_password.txt

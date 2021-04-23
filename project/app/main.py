@@ -9,16 +9,29 @@ from tortoise.contrib.fastapi import register_tortoise
 from app.api.v1.routers import api_router_v1
 from app.api.v2.routers import api_router_v2
 
-API_VERSIONS_ROUTERS = {
-    "v1": api_router_v1,
-    "v2": api_router_v2,
-}
 ORIGINS = [
     "http://guarded-waters-54698.herokuapp.com",
     "https://guarded-waters-54698.herokuapp.com",
     "http://localhost",
     "https://localhost",
 ]
+API_VERSIONS_ROUTERS = {
+    "v1": api_router_v1,
+    "v2": api_router_v2,
+}
+MODELS = [
+    "app.models.summary",
+    "aerich.models",
+]
+TORTOISE_ORM = {
+    "connections": {"default": os.environ.get("DATABASE_URL")},
+    "apps": {
+        "models": {
+            "models": MODELS,
+            "default_connection": "default",
+        },
+    },
+}
 
 
 log = logging.getLogger("uvicorn")
@@ -50,7 +63,7 @@ async def startup_event():
     register_tortoise(
         app,
         db_url=os.environ.get("DATABASE_URL"),
-        modules={"models": ["app.models.summary"]},
+        modules={"models": MODELS},
         generate_schemas=False,
         add_exception_handlers=True,
     )

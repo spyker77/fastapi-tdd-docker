@@ -10,7 +10,7 @@ services:
       - DATABASE_URL=postgres://postgres:postgres@db:5432/web_dev
       - DATABASE_TEST_URL=postgres://postgres:postgres@db:5432/web_test
     volumes:
-      - ./project:/usr/src/app
+      - ./project:/code
     ports:
       - 8004:8000
     depends_on:

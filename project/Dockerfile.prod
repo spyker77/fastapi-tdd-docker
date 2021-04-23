@@ -11,7 +11,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Set work directory
-WORKDIR /usr/src/app
+WORKDIR /code
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -22,10 +22,10 @@ COPY ./pyproject.toml .
 RUN pip install --upgrade pip \
     && pip install poetry \
     && poetry export -f requirements.txt --output requirements.txt \
-    && pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
+    && pip wheel --no-cache-dir --no-deps --wheel-dir /code/wheels -r requirements.txt
 
 # Lint
-COPY . /usr/src/app/
+COPY . .
 RUN pip install black flake9 isort \
     && flake8 . \
     && black --exclude=migrations . \
@@ -64,8 +64,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Install python dependencies
-COPY --from=builder /usr/src/app/wheels /wheels
-COPY --from=builder /usr/src/app/requirements.txt .
+COPY --from=builder /code/wheels /wheels
+COPY --from=builder /code/requirements.txt .
 RUN pip install --upgrade pip \
     && pip install --no-cache /wheels/* \
     && pip install "uvicorn[standard]==0.13.4"

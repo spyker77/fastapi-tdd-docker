@@ -11,3 +11,4 @@ This is the implementation of [the course](https://testdriven.io/courses/tdd-fas
 -   Venv replaced with poetry
 -   Added versions of the API
 -   Refactored the code
+-   Test coverage increased from 86 to 99%
