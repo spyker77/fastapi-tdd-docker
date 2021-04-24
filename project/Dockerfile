@@ -4,6 +4,10 @@ FROM python:3.9-slim-buster
 # Set working directory
 WORKDIR /code
 
+# Create the app user
+RUN addgroup --system app \
+    && adduser --system --group app
+
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -23,9 +27,11 @@ RUN pip install --upgrade pip \
 # Add app
 COPY . .
 
-# Add entrypoint.sh
-COPY ./entrypoint.sh .
-RUN chmod +x /code/entrypoint.sh
+# Chown all the files to the app user
+RUN chown -R app:app /code
+
+# Change to the app user
+USER app
 
 # Run entrypoint.sh
 ENTRYPOINT ["/code/entrypoint.sh"]

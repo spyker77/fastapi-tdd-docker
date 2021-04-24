@@ -7,7 +7,7 @@ from .conftest import app
 def test_generate_summary(test_app_with_db):
     try:
         # Prepare a test state in case the nltk_data folder has already been created.
-        shutil.rmtree("/root/nltk_data")
+        shutil.rmtree("/home/app/nltk_data")
     except FileNotFoundError:
         pass
     response = test_app_with_db.post(

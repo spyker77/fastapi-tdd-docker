@@ -8,10 +8,10 @@ from app.main import MODELS
 log = logging.getLogger("uvicorn")
 
 
-async def generate_schema() -> None:
+async def generate_schema(db_url=os.environ.get("DATABASE_URL")) -> None:
     log.info("Initializing Tortoise...")
     await Tortoise.init(
-        db_url=os.environ.get("DATABASE_URL"),
+        db_url=db_url,
         modules={"models": MODELS},
     )
     log.info("Generating database schema via Tortoise...")
