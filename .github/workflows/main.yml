@@ -75,6 +75,8 @@ jobs:
             -e ENVIRONMENT=dev \
             -e TESTING=False \
             -e DATABASE_TEST_URL=sqlite://test_sqlite.db \
+            -e CELERY_BROKER_URL=amqp://rabbitmq
+            -e CELERY_RESULT_BACKEND=redis://redis:6379/0
             -p 5003:8765 \
             ${{ env.IMAGE }}-final:latest
       - name: Install requirements
