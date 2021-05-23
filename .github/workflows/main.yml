@@ -68,15 +68,15 @@ jobs:
       - name: Run containers
         run: docker-compose up -d
       - name: Install requirements
-        run: docker-compose exec web pip install black flake9 isort pytest pytest-asyncio
+        run: docker-compose exec -T web pip install black flake9 isort pytest pytest-asyncio
       - name: Pytest
-        run: docker-compose exec web pytest .
+        run: docker-compose exec -T web pytest .
       - name: Flake8
-        run: docker-compose exec web flake8 .
+        run: docker-compose exec -T web flake8 .
       - name: Black
-        run: docker-compose exec web black . --check
+        run: docker-compose exec -T web black . --check
       - name: isort
-        run: docker-compose exec web isort . --check-only
+        run: docker-compose exec -T web isort . --check-only
 
   deploy:
     name: Deploy to Heroku
