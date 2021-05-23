@@ -1,14 +1,12 @@
+__pycache__
 *.log
 *.pot
 *.pyc
 .vscode
 .DS_Store
 .coverage
-.dockerignore
 .pytest_cache
 .mypy_cache
 htmlcov
-Dockerfile
-Dockerfile.prod
 deploy.sh
 docker_password.txt

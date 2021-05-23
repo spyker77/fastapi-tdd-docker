@@ -1,16 +1,62 @@
+###########
+# BUILDER #
+###########
+
+# Pull official base image
+FROM python:3.9-slim-buster as builder
+
+# Set work directory
+WORKDIR /code
+
+# Install system dependencies
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential netcat postgresql \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Install dependencies
+COPY ./pyproject.toml .
+RUN pip install --upgrade pip \
+    && pip install poetry \
+    && poetry export -f requirements.txt --output requirements.txt --dev \
+    && pip wheel --no-cache-dir --no-deps --wheel-dir /code/wheels -r requirements.txt
+
+# Lint
+COPY . .
+RUN pip install black flake9 isort \
+    && flake8 . \
+    && black --exclude=migrations . \
+    && isort .
+
+
+#########
+# FINAL #
+#########
+
 # Pull official base image
 FROM python:3.9-slim-buster
 
-# Set working directory
-WORKDIR /code
+# Create directory for the app user
+RUN mkdir -p /home/app
 
 # Create the app user
 RUN addgroup --system app \
     && adduser --system --group app
 
+# Create the appropriate directories
+ENV HOME=/home/app
+ENV APP_HOME=/home/app/web
+RUN mkdir $APP_HOME
+WORKDIR $APP_HOME
+
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV ENVIRONMENT=prod
+ENV TESTING=0
 
 # Install system dependencies
 RUN apt-get update \
@@ -18,20 +64,16 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Install python dependencies
-COPY ./pyproject.toml .
+COPY --from=builder /code/wheels /wheels
+COPY --from=builder /code/requirements.txt .
 RUN pip install --upgrade pip \
-    && pip install poetry \
-    && poetry export -f requirements.txt --output requirements.txt --dev \
-    && pip install -r requirements.txt
+    && pip install --no-cache /wheels/*
 
 # Add app
 COPY . .
 
 # Chown all the files to the app user
-RUN chown -R app:app /code
+RUN chown -R app:app $HOME
 
 # Change to the app user
 USER app
-
-# Run entrypoint.sh
-ENTRYPOINT ["/code/entrypoint.sh"]
