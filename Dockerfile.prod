@@ -67,8 +67,7 @@ RUN apt-get update \
 COPY --from=builder /code/wheels /wheels
 COPY --from=builder /code/requirements.txt .
 RUN pip install --upgrade pip \
-    && pip install --no-cache /wheels/* \
-    && pip install "uvicorn[standard]==0.13.4"
+    && pip install --no-cache /wheels/*
 
 # Add app
 COPY . .

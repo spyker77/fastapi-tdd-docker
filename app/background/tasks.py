@@ -17,7 +17,7 @@ async def _update_summary(summary_id: int, summary: str, db_url: AnyUrl = get_se
 
 
 @celery.task(name="celery_generate_summary")
-def celery_generate_summary(summary_id: int, url: str, db_url: AnyUrl = get_settings().database_url) -> Optional[bool]:
+def celery_generate_summary(summary_id: int, url: str, db_url: AnyUrl) -> Optional[bool]:
     article = Article(url)
     article.download()
     article.parse()
