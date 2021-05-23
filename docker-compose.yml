@@ -17,6 +17,8 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data/
     expose:
       - 5432
 
@@ -64,3 +66,6 @@ services:
       - 5556:5555
     depends_on:
       - worker
+
+volumes:
+  postgresql_data:
