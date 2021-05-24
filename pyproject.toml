@@ -21,8 +21,8 @@ skip_glob = [".mypy_cache", ".pytest_cache", "migrations"]
 [tool.poetry]
 authors = ["Evgeni Sautin <evgeni.sautin@gmail.com>"]
 description = "Test-driven development with FastAPI and Docker"
-name = "project"
-version = "0.1.0"
+name = "fastapi-tdd-docker"
+version = "0.2.0"
 
 [tool.poetry.dependencies]
 aerich = "^0.5.3"
