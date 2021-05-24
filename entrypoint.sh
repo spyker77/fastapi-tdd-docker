@@ -1,11 +1,7 @@
 #!/bin/sh
 
-echo "Waiting for postgres..."
+set -e
 
-while ! nc -z db 5432; do
-  sleep 0.1
-done
+gunicorn -b 0.0.0.0:$PORT -k uvicorn.workers.UvicornWorker app.main:app
 
-echo "PostgreSQL started"
-
-exec "$@"
+celery worker -A app.background.worker
