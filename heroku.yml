@@ -4,5 +4,6 @@ build:
 run:
   web: gunicorn -b 0.0.0.0:$PORT -k uvicorn.workers.UvicornWorker app.main:app
   worker:
-    command: celery worker -A app.background.worker
+    command:
+      - celery worker -A app.background.worker
     image: web
