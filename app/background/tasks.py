@@ -11,13 +11,13 @@ from app.models.summary import TextSummary
 from .worker import celery
 
 
-async def _update_summary(summary_id: int, summary: str, db_url: AnyUrl = get_settings().database_url) -> None:
+async def _update_summary(summary_id: int, summary: str, db_url: AnyUrl) -> None:
     await Tortoise.init(db_url=db_url, modules={"models": MODELS})
     await TextSummary.filter(id=summary_id).update(summary=summary)
 
 
 @celery.task(name="celery_generate_summary")
-def celery_generate_summary(summary_id: int, url: str, db_url: AnyUrl) -> Optional[bool]:
+def celery_generate_summary(summary_id: int, url: str, db_url: AnyUrl = get_settings().database_url) -> Optional[bool]:
     article = Article(url)
     article.download()
     article.parse()
