@@ -27,6 +27,7 @@ version = "0.1.0"
 [tool.poetry.dependencies]
 aerich = "^0.5.3"
 asyncpg = "^0.22.0"
+# Frozen due to this issue: https://github.com/mher/flower/issues/1029
 celery = "4.4.7"
 fastapi = "^0.63.0"
 flower = "^0.9.7"

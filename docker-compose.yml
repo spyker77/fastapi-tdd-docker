@@ -18,7 +18,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - postgresql_data:/var/lib/postgresql/data/
+      - postgresql_data:/var/lib/postgresql/data
     expose:
       - 5432
 
@@ -30,8 +30,8 @@ services:
       - TESTING=0
       - DATABASE_URL=postgres://postgres:postgres@db:5432/web_dev
       - DATABASE_TEST_URL=postgres://postgres:postgres@db:5432/web_test
-      - CELERY_BROKER_URL=amqp://rabbitmq
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      # - BROKER_URL=<replace_it_with_your_rabbitmq_url>
+      # - RESULT_BACKEND=<replace_it_with_your_redis_url>
     volumes:
       - .:/code
     ports:
@@ -49,8 +49,8 @@ services:
       - TESTING=0
       - DATABASE_URL=postgres://postgres:postgres@db:5432/web_dev
       - DATABASE_TEST_URL=postgres://postgres:postgres@db:5432/web_test
-      - CELERY_BROKER_URL=amqp://rabbitmq
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      # - BROKER_URL=<replace_it_with_your_rabbitmq_url>
+      # - RESULT_BACKEND=<replace_it_with_your_redis_url>
     volumes:
       - .:/code
     depends_on:
@@ -59,9 +59,9 @@ services:
   dashboard:
     build: .
     command: flower -A app.background.tasks.celery
-    environment:
-      - CELERY_BROKER_URL=amqp://rabbitmq
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    # environment:
+    #   - BROKER_URL=<replace_it_with_your_rabbitmq_url>
+    #   - RESULT_BACKEND=<replace_it_with_your_redis_url>
     ports:
       - 5556:5555
     depends_on:
