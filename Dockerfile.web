@@ -78,5 +78,5 @@ RUN chown -R app:app $HOME
 # Change to the app user
 USER app
 
-# Run entrypoint.sh
-# ENTRYPOINT ["/home/app/web/entrypoint.sh"]
+# Run server
+CMD gunicorn -b 0.0.0.0:$PORT -k uvicorn.workers.UvicornWorker app.main:app

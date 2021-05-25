@@ -78,5 +78,5 @@ RUN chown -R app:app $HOME
 # Change to the app user
 USER app
 
-# Run entrypoint.sh
-# ENTRYPOINT ["/home/app/web/entrypoint.sh"]
+# Run celery
+CMD celery worker -A app.background.worker -l INFO
