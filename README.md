@@ -23,5 +23,12 @@ Spin up the containers:
 docker compose up -d --build
 ```
 
+Generate the database schema on first launch:
+
+```bash
+docker compose exec web python init_db.py
+```
+
 Open in your browser: <http://localhost:8004/docs>
+
 To see the dashboard, open: <http://localhost:5556>

@@ -9,4 +9,3 @@ __pycache__
 .mypy_cache
 htmlcov
 deploy.sh
-docker_password.txt
