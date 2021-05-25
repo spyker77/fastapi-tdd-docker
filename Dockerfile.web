@@ -72,8 +72,5 @@ RUN chown -R app:app /home/app
 # Change to the app user
 USER app
 
-# Grant permissions to run server
-RUN chmod +x /home/app/web/start_web.sh
-
 # Run server
 CMD gunicorn -b 0.0.0.0:$PORT -k uvicorn.workers.UvicornWorker app.main:app

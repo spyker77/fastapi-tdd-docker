@@ -72,8 +72,5 @@ RUN chown -R app:app /home/app
 # Change to the app user
 USER app
 
-# Grant permissions to run celery
-RUN chmod +x /home/app/web/start_worker.sh
-
 # Run celery
 CMD celery worker -A app.background.worker -l INFO
