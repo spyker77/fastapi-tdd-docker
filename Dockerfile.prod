@@ -39,18 +39,12 @@ RUN pip install black flake9 isort \
 # Pull official base image
 FROM python:3.9-slim-buster
 
-# Create directory for the app user
-RUN mkdir -p /home/app
+# Set working directory
+WORKDIR /home/app/web
 
 # Create the app user
 RUN addgroup --system app \
     && adduser --system --group app
-
-# Create the appropriate directories
-ENV HOME=/home/app
-ENV APP_HOME=/home/app/web
-RUN mkdir $APP_HOME
-WORKDIR $APP_HOME
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -73,10 +67,10 @@ RUN pip install --upgrade pip \
 COPY . .
 
 # Chown all the files to the app user
-RUN chown -R app:app $HOME
+RUN chown -R app:app /home/app
 
 # Change to the app user
 USER app
 
 # Run entrypoint.sh
-# ENTRYPOINT ["/home/app/web/entrypoint.sh"]
+ENTRYPOINT ["/home/app/web/entrypoint.sh"]
