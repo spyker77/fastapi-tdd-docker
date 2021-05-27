@@ -3,98 +3,17 @@ name: Continuous Integration and Delivery
 on: [push]
 
 env:
-  WEB_IMAGE: docker.pkg.github.com/$(echo $GITHUB_REPOSITORY | tr '[A-Z]' '[a-z]')/web
-  WORKER_IMAGE: docker.pkg.github.com/$(echo $GITHUB_REPOSITORY | tr '[A-Z]' '[a-z]')/worker
+  WEB_IMAGE: ghcr.io/$(echo $GITHUB_ACTOR | tr '[A-Z]' '[a-z]')_web
+  WORKER_IMAGE: ghcr.io/$(echo $GITHUB_ACTOR | tr '[A-Z]' '[a-z]')_worker
 
 jobs:
-  build:
-    name: Build Docker Images
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout master
-        uses: actions/checkout@v2.3.4
-      - name: Log in to GitHub Packages
-        run: echo ${GITHUB_TOKEN} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Pull images
-        run: |
-          docker pull ${{ env.WEB_IMAGE }}-builder:latest || true
-          docker pull ${{ env.WEB_IMAGE }}-final:latest || true
-          docker pull ${{ env.WORKER_IMAGE }}-builder:latest || true
-          docker pull ${{ env.WORKER_IMAGE }}-final:latest || true
-      - name: Build images
-        run: |
-          docker build \
-            --target builder \
-            --cache-from ${{ env.WEB_IMAGE }}-builder:latest \
-            --tag ${{ env.WEB_IMAGE }}-builder:latest \
-            --file ./Dockerfile.web \
-            "."
-          docker build \
-            --cache-from ${{ env.WEB_IMAGE }}-final:latest \
-            --tag ${{ env.WEB_IMAGE }}-final:latest \
-            --file ./Dockerfile.web \
-            "."
-          docker build \
-            --target builder \
-            --cache-from ${{ env.WORKER_IMAGE }}-builder:latest \
-            --tag ${{ env.WORKER_IMAGE }}-builder:latest \
-            --file ./Dockerfile.worker \
-            "."
-          docker build \
-            --cache-from ${{ env.WORKER_IMAGE }}-final:latest \
-            --tag ${{ env.WORKER_IMAGE }}-final:latest \
-            --file ./Dockerfile.worker \
-            "."
-      - name: Push images
-        run: |
-          docker push ${{ env.WEB_IMAGE }}-builder:latest
-          docker push ${{ env.WEB_IMAGE }}-final:latest
-          docker push ${{ env.WORKER_IMAGE }}-builder:latest
-          docker push ${{ env.WORKER_IMAGE }}-final:latest
   test:
-    name: Test Docker Images
+    name: Test with Docker Compose
     runs-on: ubuntu-latest
-    needs: build
     steps:
-      - name: Checkout master
-        uses: actions/checkout@v2.3.4
-      - name: Log in to GitHub Packages
-        run: echo ${GITHUB_TOKEN} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Pull images
-        run: |
-          docker pull ${{ env.WEB_IMAGE }}-builder:latest || true
-          docker pull ${{ env.WEB_IMAGE }}-final:latest || true
-          docker pull ${{ env.WORKER_IMAGE }}-builder:latest || true
-          docker pull ${{ env.WORKER_IMAGE }}-final:latest || true
-      - name: Build images
-        run: |
-          docker build \
-            --target builder \
-            --cache-from ${{ env.WEB_IMAGE }}-builder:latest \
-            --tag ${{ env.WEB_IMAGE }}-builder:latest \
-            --file ./Dockerfile.web \
-            "."
-          docker build \
-            --cache-from ${{ env.WEB_IMAGE }}-final:latest \
-            --tag ${{ env.WEB_IMAGE }}-final:latest \
-            --file ./Dockerfile.web \
-            "."
-          docker build \
-            --target builder \
-            --cache-from ${{ env.WORKER_IMAGE }}-builder:latest \
-            --tag ${{ env.WORKER_IMAGE }}-builder:latest \
-            --file ./Dockerfile.worker \
-            "."
-          docker build \
-            --cache-from ${{ env.WORKER_IMAGE }}-final:latest \
-            --tag ${{ env.WORKER_IMAGE }}-final:latest \
-            --file ./Dockerfile.worker \
-            "."
-      - name: Run containers
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build and run containers
         run: docker-compose up -d
       - name: Install requirements
         run: docker-compose exec -T web pip install black flake9 isort pytest pytest-asyncio
@@ -107,49 +26,97 @@ jobs:
       - name: isort
         run: docker-compose exec -T web isort . --check-only
 
+  build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Log in to GitHub Packages
+        run: echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Pull images
+        run: |
+          docker pull ${{ env.WEB_IMAGE }}_builder:latest || true
+          docker pull ${{ env.WEB_IMAGE }}_final:latest || true
+          docker pull ${{ env.WORKER_IMAGE }}_builder:latest || true
+          docker pull ${{ env.WORKER_IMAGE }}_final:latest || true
+      - name: Build images
+        run: |
+          docker build \
+            --target builder \
+            --cache-from ${{ env.WEB_IMAGE }}_builder:latest \
+            --tag ${{ env.WEB_IMAGE }}_builder:latest \
+            --file ./Dockerfile.web \
+            "."
+          docker build \
+            --cache-from ${{ env.WEB_IMAGE }}_final:latest \
+            --tag ${{ env.WEB_IMAGE }}_final:latest \
+            --file ./Dockerfile.web \
+            "."
+          docker build \
+            --target builder \
+            --cache-from ${{ env.WORKER_IMAGE }}_builder:latest \
+            --tag ${{ env.WORKER_IMAGE }}_builder:latest \
+            --file ./Dockerfile.worker \
+            "."
+          docker build \
+            --cache-from ${{ env.WORKER_IMAGE }}_final:latest \
+            --tag ${{ env.WORKER_IMAGE }}_final:latest \
+            --file ./Dockerfile.worker \
+            "."
+      - name: Push images
+        run: |
+          docker push ${{ env.WEB_IMAGE }}_builder:latest
+          docker push ${{ env.WEB_IMAGE }}_final:latest
+          docker push ${{ env.WORKER_IMAGE }}_builder:latest
+          docker push ${{ env.WORKER_IMAGE }}_final:latest
+
   deploy:
     name: Deploy to Heroku
     runs-on: ubuntu-latest
-    needs: [build, test]
+    needs: [test, build]
     env:
       HEROKU_APP_NAME: guarded-waters-54698
       HEROKU_REGISTRY_WEB_IMAGE: registry.heroku.com/${HEROKU_APP_NAME}/web
       HEROKU_REGISTRY_WORKER_IMAGE: registry.heroku.com/${HEROKU_APP_NAME}/worker
     steps:
-      - name: Checkout master
-        uses: actions/checkout@v2.3.4
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: Log in to GitHub Packages
-        run: echo ${GITHUB_TOKEN} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
+        run: echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Pull images
         run: |
-          docker pull ${{ env.WEB_IMAGE }}-builder:latest || true
-          docker pull ${{ env.WEB_IMAGE }}-final:latest || true
-          docker pull ${{ env.WORKER_IMAGE }}-builder:latest || true
-          docker pull ${{ env.WORKER_IMAGE }}-final:latest || true
+          docker pull ${{ env.WEB_IMAGE }}_builder:latest || true
+          docker pull ${{ env.WEB_IMAGE }}_final:latest || true
+          docker pull ${{ env.WORKER_IMAGE }}_builder:latest || true
+          docker pull ${{ env.WORKER_IMAGE }}_final:latest || true
       - name: Build images
         run: |
           docker build \
             --target builder \
-            --cache-from ${{ env.WEB_IMAGE }}-builder:latest \
-            --tag ${{ env.WEB_IMAGE }}-builder:latest \
+            --cache-from ${{ env.WEB_IMAGE }}_builder:latest \
+            --tag ${{ env.WEB_IMAGE }}_builder:latest \
             --file ./Dockerfile.web \
             "."
           docker build \
-            --cache-from ${{ env.WEB_IMAGE }}-final:latest \
+            --cache-from ${{ env.WEB_IMAGE }}_final:latest \
             --tag ${{ env.WEB_IMAGE }}:latest \
             --tag ${{ env.HEROKU_REGISTRY_WEB_IMAGE }}:latest \
             --file ./Dockerfile.web \
             "."
           docker build \
             --target builder \
-            --cache-from ${{ env.WORKER_IMAGE }}-builder:latest \
-            --tag ${{ env.WORKER_IMAGE }}-builder:latest \
+            --cache-from ${{ env.WORKER_IMAGE }}_builder:latest \
+            --tag ${{ env.WORKER_IMAGE }}_builder:latest \
             --file ./Dockerfile.worker \
             "."
           docker build \
-            --cache-from ${{ env.WORKER_IMAGE }}-final:latest \
+            --cache-from ${{ env.WORKER_IMAGE }}_final:latest \
             --tag ${{ env.WORKER_IMAGE }}:latest \
             --tag ${{ env.HEROKU_REGISTRY_WORKER_IMAGE }}:latest \
             --file ./Dockerfile.worker \
