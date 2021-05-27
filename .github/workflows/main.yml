@@ -56,20 +56,21 @@ jobs:
             --file ./Dockerfile.web \
             "."
           docker build \
-            --cache-from ${{ env.WEB_IMAGE }}-final:latest \
-            --tag ${{ env.WEB_IMAGE }}:latest \
-            --tag ${{ env.HEROKU_REGISTRY_WEB_IMAGE }}:latest \
-            --file ./Dockerfile.web \
-            "."
-          docker build \
             --target builder \
             --cache-from ${{ env.WORKER_IMAGE }}-builder:latest \
             --tag ${{ env.WORKER_IMAGE }}-builder:latest \
             --file ./Dockerfile.worker \
             "."
+
+          docker build \
+            --cache-from ${{ env.WEB_IMAGE }}-final:latest \
+            --tag ${{ env.WEB_IMAGE }}-final:latest \
+            --tag ${{ env.HEROKU_REGISTRY_WEB_IMAGE }}:latest \
+            --file ./Dockerfile.web \
+            "."
           docker build \
             --cache-from ${{ env.WORKER_IMAGE }}-final:latest \
-            --tag ${{ env.WORKER_IMAGE }}:latest \
+            --tag ${{ env.WORKER_IMAGE }}-final:latest \
             --tag ${{ env.HEROKU_REGISTRY_WORKER_IMAGE }}:latest \
             --file ./Dockerfile.worker \
             "."
