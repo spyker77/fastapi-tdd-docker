@@ -6,9 +6,6 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.8-management
-    ports:
-      - 5672:5672
-      - 15672:15672
   
   db:
     build:
@@ -43,7 +40,7 @@ services:
   
   worker:
     build: .
-    command: celery worker -A app.background.worker -l INFO
+    command: celery -A app.background.worker worker -l INFO
     environment:
       - ENVIRONMENT=dev
       - TESTING=0
@@ -55,17 +52,6 @@ services:
       - .:/code
     depends_on:
       - web
-  
-  dashboard:
-    build: .
-    command: flower -A app.background.tasks.celery
-    # environment:
-    #   - BROKER_URL=<replace_it_with_your_rabbitmq_url>
-    #   - RESULT_BACKEND=<replace_it_with_your_redis_url>
-    ports:
-      - 5556:5555
-    depends_on:
-      - worker
 
 volumes:
   postgresql_data:

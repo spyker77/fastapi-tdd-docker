@@ -14,6 +14,8 @@ This is the implementation of [the course](https://testdriven.io/courses/tdd-fas
 -   Test coverage increased from 86 to 94%
 -   Gunicorn added to manage the uvicorn
 -   BackgroundTasks replaced witn Celery, Redis and RabbitMQ
+-   Optimised CI/CD pipeline in GitHub Actions
+-   Migrated to the Container registry from the Docker registry
 
 ### Quick Start
 
@@ -30,5 +32,3 @@ docker compose exec web python init_db.py
 ```
 
 Open in your browser: <http://localhost:8004/docs>
-
-To see the dashboard, open: <http://localhost:5556>

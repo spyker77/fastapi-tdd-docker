@@ -61,7 +61,6 @@ jobs:
             --tag ${{ env.WORKER_IMAGE }}-builder:latest \
             --file ./Dockerfile.worker \
             "."
-
           docker build \
             --cache-from ${{ env.WEB_IMAGE }}-final:latest \
             --tag ${{ env.WEB_IMAGE }}-final:latest \
