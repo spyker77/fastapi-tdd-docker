@@ -18,7 +18,7 @@ app.dependency_overrides[get_settings] = get_settings_override
 def test_app_with_db():
     register_tortoise(
         app,
-        db_url=get_settings_override().database_test_url,
+        db_url=get_settings_override().database_url,
         modules={"models": MODELS},
         generate_schemas=True,
         add_exception_handlers=True,

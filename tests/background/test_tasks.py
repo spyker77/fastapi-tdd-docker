@@ -38,10 +38,7 @@ def test_generate_summary(test_app_with_db):
         shutil.rmtree("/home/app/nltk_data")
     except FileNotFoundError:
         pass
-    response = test_app_with_db.post(
-        "/api/v1/summaries/",
-        data=json.dumps({"url": "https://lipsum.com/"}),
-    )
+    response = test_app_with_db.post("/api/v1/summaries/", data=json.dumps({"url": "https://lipsum.com/"}))
     summary_id = response.json()["id"]
     response = test_app_with_db.get(f"/api/v1/summaries/{summary_id}/")
     assert "Lorem Ipsum" in response.json()["summary"]

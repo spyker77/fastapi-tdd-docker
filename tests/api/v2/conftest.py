@@ -24,7 +24,7 @@ def test_app():
 def test_app_with_db():
     register_tortoise(
         app,
-        db_url=get_settings().database_test_url,
+        db_url=get_settings_override().database_url,
         modules={"models": MODELS},
         generate_schemas=True,
         add_exception_handlers=True,
