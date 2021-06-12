@@ -2,12 +2,14 @@ import pytest
 from fastapi.testclient import TestClient
 from tortoise.contrib.fastapi import register_tortoise
 
-from app.config import MODELS, Settings, get_settings
+from app.config import Settings, get_settings
 from app.main import create_application
+
+settings = get_settings()
 
 
 def get_settings_override():
-    return Settings(testing=1, database_url=get_settings().database_test_url)
+    return Settings(TESTING=1, DATABASE_URL=settings.DATABASE_TEST_URL)
 
 
 app = create_application(api_versions=["v2"])
@@ -24,8 +26,8 @@ def test_app():
 def test_app_with_db():
     register_tortoise(
         app,
-        db_url=get_settings_override().database_url,
-        modules={"models": MODELS},
+        db_url=get_settings_override().DATABASE_URL,
+        modules={"models": settings.MODELS},
         generate_schemas=True,
         add_exception_handlers=True,
     )

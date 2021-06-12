@@ -1,5 +1,3 @@
-import json
-
 import pytest
 
 from app.api.v1.endpoints import summaries
@@ -13,8 +11,9 @@ def test_create_summary(test_app_with_db, monkeypatch):
 
     monkeypatch.setattr(summaries, "generate_summary", mock_generate_summary)
     response = test_app_with_db.post(
-        app.url_path_for("create_summary"),
-        data=json.dumps({"url": "https://foo.bar"}),
+        url=app.url_path_for("create_summary"),
+        json={"url": "https://foo.bar"},
+        headers={"Content-Type": "application/json"},
     )
     assert response.status_code == 201
     assert response.json()["url"] == "https://foo.bar"
@@ -22,8 +21,9 @@ def test_create_summary(test_app_with_db, monkeypatch):
 
 def test_create_summaries_invalid_json(test_app):
     response = test_app.post(
-        app.url_path_for("create_summary"),
-        data=json.dumps({}),
+        url=app.url_path_for("create_summary"),
+        json={},
+        headers={"Content-Type": "application/json"},
     )
     assert response.status_code == 422
     assert response.json() == {
@@ -36,8 +36,9 @@ def test_create_summaries_invalid_json(test_app):
         ]
     }
     response = test_app.post(
-        app.url_path_for("create_summary"),
-        data=json.dumps({"url": "invalid://url"}),
+        url=app.url_path_for("create_summary"),
+        json={"url": "invalid://url"},
+        headers={"Content-Type": "application/json"},
     )
     assert response.status_code == 422
     assert response.json()["detail"][0]["msg"] == "URL scheme not permitted"
@@ -49,8 +50,9 @@ def test_read_summary(test_app_with_db, monkeypatch):
 
     monkeypatch.setattr(summaries, "generate_summary", mock_generate_summary)
     response = test_app_with_db.post(
-        app.url_path_for("create_summary"),
-        data=json.dumps({"url": "https://foo.bar"}),
+        url=app.url_path_for("create_summary"),
+        json={"url": "https://foo.bar"},
+        headers={"Content-Type": "application/json"},
     )
     summary_id = response.json()["id"]
     response = test_app_with_db.get(app.url_path_for("read_summary", id=summary_id))
@@ -90,8 +92,9 @@ def test_read_all_summaries(test_app_with_db, monkeypatch):
 
     monkeypatch.setattr(summaries, "generate_summary", mock_generate_summary)
     response = test_app_with_db.post(
-        app.url_path_for("create_summary"),
-        data=json.dumps({"url": "https://foo.bar"}),
+        url=app.url_path_for("create_summary"),
+        json={"url": "https://foo.bar"},
+        headers={"Content-Type": "application/json"},
     )
     summary_id = response.json()["id"]
     response = test_app_with_db.get(app.url_path_for("read_all_summaries"))
@@ -106,13 +109,15 @@ def test_update_summary(test_app_with_db, monkeypatch):
 
     monkeypatch.setattr(summaries, "generate_summary", mock_generate_summary)
     response = test_app_with_db.post(
-        app.url_path_for("create_summary"),
-        data=json.dumps({"url": "https://foo.bar"}),
+        url=app.url_path_for("create_summary"),
+        json={"url": "https://foo.bar"},
+        headers={"Content-Type": "application/json"},
     )
     summary_id = response.json()["id"]
     response = test_app_with_db.put(
-        app.url_path_for("update_summary", id=summary_id),
-        data=json.dumps({"url": "https://foo.bar", "summary": "updated!"}),
+        url=app.url_path_for("update_summary", id=summary_id),
+        json={"url": "https://foo.bar", "summary": "updated!"},
+        headers={"Content-Type": "application/json"},
     )
     assert response.status_code == 200
     response_dict = response.json()
@@ -181,8 +186,9 @@ def test_update_summary_invalid(test_app_with_db, monkeypatch, summary_id, paylo
 
     monkeypatch.setattr(summaries, "generate_summary", mock_generate_summary)
     response = test_app_with_db.put(
-        app.url_path_for("update_summary", id=summary_id),
-        data=json.dumps(payload),
+        url=app.url_path_for("update_summary", id=summary_id),
+        json=payload,
+        headers={"Content-Type": "application/json"},
     )
     assert response.status_code == status_code
     assert response.json()["detail"] == detail
@@ -190,8 +196,9 @@ def test_update_summary_invalid(test_app_with_db, monkeypatch, summary_id, paylo
 
 def test_update_summary_invalid_url(test_app):
     response = test_app.put(
-        app.url_path_for("update_summary", id=1),
-        data=json.dumps({"url": "invalid://url", "summary": "updated!"}),
+        url=app.url_path_for("update_summary", id=1),
+        json={"url": "invalid://url", "summary": "updated!"},
+        headers={"Content-Type": "application/json"},
     )
     assert response.status_code == 422
     assert response.json()["detail"][0]["msg"] == "URL scheme not permitted"
@@ -203,8 +210,9 @@ def test_delete_summary(test_app_with_db, monkeypatch):
 
     monkeypatch.setattr(summaries, "generate_summary", mock_generate_summary)
     response = test_app_with_db.post(
-        app.url_path_for("create_summary"),
-        data=json.dumps({"url": "https://foo.bar"}),
+        url=app.url_path_for("create_summary"),
+        json={"url": "https://foo.bar"},
+        headers={"Content-Type": "application/json"},
     )
     summary_id = response.json()["id"]
     response = test_app_with_db.delete(app.url_path_for("delete_summary", id=summary_id))

@@ -1,4 +1,3 @@
-import json
 import shutil
 
 import pytest
@@ -9,7 +8,7 @@ from app.models.summary import TextSummary
 
 from .conftest import get_settings_override
 
-db_url = get_settings_override().database_url
+db_url = get_settings_override().DATABASE_URL
 
 
 @pytest.mark.asyncio
@@ -38,7 +37,11 @@ def test_generate_summary(test_app_with_db):
         shutil.rmtree("/home/app/nltk_data")
     except FileNotFoundError:
         pass
-    response = test_app_with_db.post("/api/v1/summaries/", data=json.dumps({"url": "https://lipsum.com/"}))
+    response = test_app_with_db.post(
+        url="/api/v1/summaries/",
+        json={"url": "https://lipsum.com/"},
+        headers={"Content-Type": "application/json"},
+    )
     summary_id = response.json()["id"]
     response = test_app_with_db.get(f"/api/v1/summaries/{summary_id}/")
     assert "Lorem Ipsum" in response.json()["summary"]
