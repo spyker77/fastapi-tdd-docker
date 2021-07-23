@@ -16,7 +16,7 @@ jobs:
       - name: Build and run containers
         run: docker-compose up -d
       - name: Install requirements
-        run: docker-compose exec -T web pip install black flake9 isort pytest pytest-asyncio
+        run: docker-compose exec -T web pip install black==21.6b0 flake9 isort pytest pytest-asyncio
       - name: Pytest
         run: docker-compose exec -T web pytest .
       - name: Flake8
