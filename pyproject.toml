@@ -1,12 +1,10 @@
 [tool.black]
 exclude = '''
-(
-  /(
-      \.mypy_cache
-    | \.pytest_cache
-    | migrations
-  )/
-)
+/(
+    \.mypy_cache
+  | \.pytest_cache
+  | migrations
+)/
 '''
 line-length = 119
 
@@ -41,7 +39,8 @@ uvloop = "^0.15.2"
 
 [tool.poetry.dev-dependencies]
 bandit = "^1.7.0"
-black = "^21.5b2"
+# Fixed version due to incompatibility issues with the latest one.
+black = "21.5b2"
 flake9 = "^3.8.3"
 isort = "^5.8.0"
 mypy = "^0.812"

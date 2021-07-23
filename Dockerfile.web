@@ -26,7 +26,7 @@ RUN pip install --upgrade pip \
 
 # Lint
 COPY . .
-RUN pip install black flake9 isort \
+RUN pip install black==21.6b0 flake9 isort \
     && flake8 . \
     && black --exclude=migrations . \
     && isort .
