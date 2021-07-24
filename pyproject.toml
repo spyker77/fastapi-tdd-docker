@@ -28,14 +28,11 @@ asyncpg = "^0.23.0"
 celery = "^5.1.0"
 fastapi = "^0.65.1"
 gunicorn = "^20.1.0"
-httptools = "^0.2.0"
 newspaper3k = "^0.2.8"
 python = "^3.9"
 redis = "^3.5.3"
-requests = "^2.25.1"
 tortoise-orm = "^0.17.4"
-uvicorn = "^0.14.0"
-uvloop = "^0.15.2"
+uvicorn = {extras = ["standard"], version = "^0.14.0"}
 
 [tool.poetry.dev-dependencies]
 bandit = "^1.7.0"
