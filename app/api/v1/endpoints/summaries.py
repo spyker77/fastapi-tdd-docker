@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Path
 
 from app.background.tasks import generate_summary
@@ -8,6 +6,7 @@ from app.schemas.summary import (
     SummaryPayloadSchema,
     SummaryResponseSchema,
     SummarySchema,
+    SummarySchemaList,
     SummaryUpdatePayloadSchema,
 )
 
@@ -29,7 +28,7 @@ async def read_summary(id: int = Path(..., gt=0)):
     return summary
 
 
-@router.get("/", response_model=List[SummarySchema])
+@router.get("/", response_model=SummarySchemaList)
 async def read_all_summaries():
     return await crud_summary.get_all()
 

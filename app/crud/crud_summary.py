@@ -17,7 +17,7 @@ async def get(id: int) -> Union[Dict, None]:
     return None
 
 
-async def get_all() -> List:
+async def get_all() -> List[Dict]:
     summaries = await TextSummary.all().values()
     return summaries
 
