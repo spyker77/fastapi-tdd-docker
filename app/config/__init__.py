@@ -2,7 +2,7 @@ import logging
 from functools import lru_cache
 from typing import List
 
-from pydantic import AnyHttpUrl, AnyUrl, BaseSettings
+from pydantic import AnyHttpUrl, AnyUrl, BaseSettings, Field
 
 log = logging.getLogger("uvicorn")
 
@@ -10,20 +10,22 @@ log = logging.getLogger("uvicorn")
 class DockerSettings(BaseSettings):
     ENVIRONMENT: str = "dev"
     TESTING: bool = False
-    DATABASE_URL: AnyUrl = "sqlite://sqlite.db"
-    DATABASE_TEST_URL: AnyUrl = "sqlite://test_sqlite.db"
-    BROKER_URL: AnyUrl = "amqp://rabbitmq"
-    RESULT_BACKEND: AnyUrl = "redis://redis:6379/0"
+    DATABASE_URL: AnyUrl = Field("sqlite://sqlite.db")
+    DATABASE_TEST_URL: AnyUrl = Field("sqlite://test_sqlite.db")
+    BROKER_URL: AnyUrl = Field("amqp://rabbitmq")
+    RESULT_BACKEND: AnyUrl = Field("redis://redis:6379/0")
 
 
 class AppSettings(BaseSettings):
-    ORIGINS: List[AnyHttpUrl] = [
-        "http://guarded-waters-54698.herokuapp.com",
-        "https://guarded-waters-54698.herokuapp.com",
-        "http://localhost",
-        "https://localhost",
-    ]
-    MODELS: List[str] = ["app.models.summary", "aerich.models"]
+    MODELS: List[str] = Field(["app.models.summary", "aerich.models"])
+    ORIGINS: List[AnyHttpUrl] = Field(
+        [
+            "http://guarded-waters-54698.herokuapp.com",
+            "https://guarded-waters-54698.herokuapp.com",
+            "http://localhost",
+            "https://localhost",
+        ]
+    )
 
 
 class Settings(DockerSettings, AppSettings):
