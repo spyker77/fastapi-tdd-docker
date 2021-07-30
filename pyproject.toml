@@ -24,14 +24,13 @@ version = "0.2.0"
 
 [tool.poetry.dependencies]
 aerich = "^0.5.3"
-asyncpg = "^0.23.0"
 celery = "^5.1.0"
 fastapi = "^0.65.1"
 gunicorn = "^20.1.0"
 newspaper3k = "^0.2.8"
 python = "^3.9"
 redis = "^3.5.3"
-tortoise-orm = "^0.17.4"
+tortoise-orm = {extras = ["asyncpg", "aiosqlite", "accel"], version = "^0.17.6"}
 uvicorn = {extras = ["standard"], version = "^0.14.0"}
 
 [tool.poetry.dev-dependencies]
