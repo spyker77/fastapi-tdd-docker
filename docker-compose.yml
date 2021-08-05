@@ -12,46 +12,45 @@ services:
       context: ./db
       dockerfile: Dockerfile
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
       - postgresql_data:/var/lib/postgresql/data
-    expose:
-      - 5432
 
   web:
     build: .
-    command: gunicorn -b 0.0.0.0 -k uvicorn.workers.UvicornWorker app.main:app
     environment:
       - ENVIRONMENT=dev
       - TESTING=0
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/web_dev
-      - DATABASE_TEST_URL=postgres://postgres:postgres@db:5432/web_test
+      - SECRET_KEY=697be90749590b29ad92e0f8b5a0e7d11cf895403af9858ba7813bd51aac5795
+      - DATABASE_URL=postgres://postgres@db:5432/web_dev
+      - DATABASE_TEST_URL=postgres://postgres@db:5432/web_test
       # - BROKER_URL=<replace_it_with_your_rabbitmq_url>
       # - RESULT_BACKEND=<replace_it_with_your_redis_url>
     volumes:
       - .:/code
     ports:
-      - 8004:8000
+      - 8000:8000
     depends_on:
-    - redis
-    - rabbitmq
-    - db
+      - redis
+      - rabbitmq
+      - db
+    command: gunicorn -b 0.0.0.0 -k uvicorn.workers.UvicornWorker app.main:app
   
   worker:
     build: .
-    command: celery -A app.background.worker worker -l INFO
     environment:
       - ENVIRONMENT=dev
       - TESTING=0
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/web_dev
-      - DATABASE_TEST_URL=postgres://postgres:postgres@db:5432/web_test
+      - SECRET_KEY=697be90749590b29ad92e0f8b5a0e7d11cf895403af9858ba7813bd51aac5795
+      - DATABASE_URL=postgres://postgres@db:5432/web_dev
+      - DATABASE_TEST_URL=postgres://postgres@db:5432/web_test
       # - BROKER_URL=<replace_it_with_your_rabbitmq_url>
       # - RESULT_BACKEND=<replace_it_with_your_redis_url>
     volumes:
       - .:/code
     depends_on:
       - web
+    command: ./scripts/wait-for-it.sh -t 5 amqp://rabbitmq -- celery -A app.background.worker worker -l INFO
 
 volumes:
   postgresql_data:
