@@ -10,14 +10,18 @@ log = logging.getLogger("uvicorn")
 class DockerSettings(BaseSettings):
     ENVIRONMENT: str = "dev"
     TESTING: bool = False
-    DATABASE_URL: AnyUrl = Field("sqlite://sqlite.db")
-    DATABASE_TEST_URL: AnyUrl = Field("sqlite://test_sqlite.db")
+    # To generate a new SECRET_KEY, run this command:
+    # openssl rand -hex 32
+    SECRET_KEY: str
+    DATABASE_URL: str = Field("postgres://postgres@db/postgres")
+    DATABASE_TEST_URL: str = Field("sqlite://:memory:")
     BROKER_URL: AnyUrl = Field("amqp://rabbitmq")
-    RESULT_BACKEND: AnyUrl = Field("redis://redis:6379/0")
+    RESULT_BACKEND: AnyUrl = Field("redis://redis")
 
 
 class AppSettings(BaseSettings):
-    MODELS: List[str] = Field(["app.models.summary", "aerich.models"])
+    AUTH_TOKEN_URL: str = "/api/token"
+    MODELS: List[str] = Field(["app.models", "aerich.models"])
     ORIGINS: List[AnyHttpUrl] = Field(
         [
             "http://guarded-waters-54698.herokuapp.com",

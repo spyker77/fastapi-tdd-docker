@@ -3,7 +3,7 @@ from uuid import UUID
 
 import nltk
 from newspaper import Article, Config
-from pydantic import AnyUrl
+from pydantic import AnyHttpUrl
 from tortoise import Tortoise, run_async
 
 from app.config import get_settings
@@ -20,13 +20,13 @@ config.browser_user_agent = CUSTOM_USER_AGENT
 settings = get_settings()
 
 
-async def _update_summary(summary_id: UUID, summary: str, db_url: AnyUrl) -> None:
+async def _update_summary(summary_id: UUID, summary: AnyHttpUrl, db_url: str) -> None:
     await Tortoise.init(db_url=db_url, modules={"models": settings.MODELS})
     await Summary.filter(id=summary_id).update(summary=summary)
 
 
 @celery.task(name="celery_generate_summary")
-def celery_generate_summary(summary_id: UUID, url: str, db_url: AnyUrl = settings.DATABASE_URL) -> Optional[bool]:
+def celery_generate_summary(summary_id: UUID, url: AnyHttpUrl, db_url: str = settings.DATABASE_URL) -> Optional[bool]:
     article = Article(url, config=config)
     article.download()
     article.parse()
@@ -40,17 +40,3 @@ def celery_generate_summary(summary_id: UUID, url: str, db_url: AnyUrl = setting
     # Open a new connection on every update and close it automatically by run_async() helper.
     run_async(_update_summary(summary_id, summary, db_url))
     return True
-
-
-async def generate_summary(summary_id: UUID, url: str) -> None:
-    article = Article(url)
-    article.download()
-    article.parse()
-    try:
-        nltk.data.find("tokenizers/punkt")
-    except LookupError:
-        nltk.download("punkt")
-    finally:
-        article.nlp()
-    summary = article.summary
-    await Summary.filter(id=summary_id).update(summary=summary)

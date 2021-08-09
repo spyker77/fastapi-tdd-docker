@@ -1,6 +1,5 @@
 import logging
 
-from pydantic import AnyUrl
 from tortoise import Tortoise, run_async
 
 from app.config import get_settings
@@ -10,7 +9,7 @@ settings = get_settings()
 log = logging.getLogger("uvicorn")
 
 
-async def generate_schema(db_url: AnyUrl = settings.DATABASE_URL) -> None:
+async def generate_schema(db_url: str = settings.DATABASE_URL) -> None:
     log.info("Initializing Tortoise...")
     await Tortoise.init(db_url=db_url, modules={"models": settings.MODELS})
     log.info("Generating database schema via Tortoise...")

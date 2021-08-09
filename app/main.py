@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from tortoise.contrib.fastapi import register_tortoise
 
-from app.api.v1.routers import api_router_v1
+from app.api import token
 from app.api.v2.routers import api_router_v2
 from app.config import get_settings
 
@@ -21,17 +21,17 @@ TORTOISE_ORM = {
     },
 }
 
-API_VERSIONS_ROUTERS = {
-    "v1": api_router_v1,
-    "v2": api_router_v2,
-}
+API_VERSIONS_ROUTERS = {"v2": api_router_v2}
 
 log = logging.getLogger("uvicorn")
 
 
-def create_application(api_versions: List[str] = ["v2", "v1"]) -> FastAPI:
+def create_application(api_versions: List[str] = ["v2"]) -> FastAPI:
     application = FastAPI(
         title="Test-Driven Development with FastAPI and Docker",
+        description="""Create a random user and then authorize to play around with options.
+        Authorized users can create and read everything, but update and delete only their own entries.
+        """,
         version="v2",
     )
     application.add_middleware(
@@ -41,6 +41,8 @@ def create_application(api_versions: List[str] = ["v2", "v1"]) -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    # First include the OAuth2 access token and then all APIs.
+    application.include_router(token.router)
     for version in api_versions:
         application.include_router(API_VERSIONS_ROUTERS[version])
     return application

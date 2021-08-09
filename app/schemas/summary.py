@@ -1,23 +1,18 @@
 from typing import List, Type
+from uuid import UUID
 
 from pydantic import AnyHttpUrl, BaseModel
-from tortoise.contrib.pydantic import pydantic_model_creator
-from tortoise.contrib.pydantic.base import PydanticModel
 
-from app.models.summary import TextSummary
 
-SummarySchema = pydantic_model_creator(TextSummary)
+class SummarySchema(BaseModel):
+    id: UUID
+    url: AnyHttpUrl
+    summary: str
+    user_id: UUID
 
-SummarySchemaList: Type[List[PydanticModel]] = List[SummarySchema]
+
+SummarySchemaList: Type[List] = List[SummarySchema]
 
 
 class SummaryPayloadSchema(BaseModel):
     url: AnyHttpUrl
-
-
-class SummaryResponseSchema(SummaryPayloadSchema):
-    id: int
-
-
-class SummaryUpdatePayloadSchema(SummaryPayloadSchema):
-    summary: str

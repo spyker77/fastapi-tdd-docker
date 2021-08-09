@@ -8,9 +8,7 @@ services:
     image: rabbitmq:3.8-management
   
   db:
-    build:
-      context: ./db
-      dockerfile: Dockerfile
+    image: postgres:13-alpine
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
@@ -22,8 +20,8 @@ services:
       - ENVIRONMENT=dev
       - TESTING=0
       - SECRET_KEY=697be90749590b29ad92e0f8b5a0e7d11cf895403af9858ba7813bd51aac5795
-      - DATABASE_URL=postgres://postgres@db:5432/web_dev
-      - DATABASE_TEST_URL=postgres://postgres@db:5432/web_test
+      # - DATABASE_URL=<replace_it_with_your_database_url>
+      # - DATABASE_TEST_URL=<replace_it_with_your_database_test_url>
       # - BROKER_URL=<replace_it_with_your_rabbitmq_url>
       # - RESULT_BACKEND=<replace_it_with_your_redis_url>
     volumes:
@@ -42,8 +40,8 @@ services:
       - ENVIRONMENT=dev
       - TESTING=0
       - SECRET_KEY=697be90749590b29ad92e0f8b5a0e7d11cf895403af9858ba7813bd51aac5795
-      - DATABASE_URL=postgres://postgres@db:5432/web_dev
-      - DATABASE_TEST_URL=postgres://postgres@db:5432/web_test
+      # - DATABASE_URL=<replace_it_with_your_database_url>
+      # - DATABASE_TEST_URL=<replace_it_with_your_database_test_url>
       # - BROKER_URL=<replace_it_with_your_rabbitmq_url>
       # - RESULT_BACKEND=<replace_it_with_your_redis_url>
     volumes:

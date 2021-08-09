@@ -1,51 +1,73 @@
-from typing import List
+from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Path
+from fastapi import APIRouter, Depends, HTTPException, Path, status
 
 from app.background.tasks import celery_generate_summary
-from app.crud import crud_summary
-from app.schemas.summary import (
-    SummaryPayloadSchema,
-    SummaryResponseSchema,
-    SummarySchema,
-    SummaryUpdatePayloadSchema,
+from app.crud import crud_summary, crud_user
+from app.schemas.summary import SummaryPayloadSchema, SummarySchema, SummarySchemaList
+from app.schemas.user import UserInDBSchema
+from app.security.auth import get_current_active_user
+
+router = APIRouter(prefix="/summaries", tags=["summaries"])
+
+
+@router.post(
+    "/",
+    response_model=SummarySchema,
+    response_model_exclude={"summary"},
+    status_code=status.HTTP_201_CREATED,
 )
-
-router = APIRouter()
-
-
-@router.post("/", response_model=SummaryResponseSchema, status_code=201)
-async def create_summary(payload: SummaryPayloadSchema):
-    summary_id = await crud_summary.post(payload)
-    celery_generate_summary.delay(summary_id, payload.url)
-    return SummaryResponseSchema(id=summary_id, url=payload.url)
-
-
-@router.get("/{id}", response_model=SummarySchema)
-async def read_summary(id: int = Path(..., gt=0)):
-    summary = await crud_summary.get(id)
-    if not summary:
-        raise HTTPException(status_code=404, detail="Summary not found")
+async def create_summary(
+    payload: SummaryPayloadSchema, current_user: UserInDBSchema = Depends(get_current_active_user)
+):
+    summary = await crud_summary.post(payload, current_user.id)
+    celery_generate_summary.delay(summary.id, payload.url)
     return summary
 
 
-@router.get("/", response_model=List[SummarySchema])
+@router.get("/{id}", response_model=SummarySchema)
+async def read_summary(id: UUID = Path(...)):
+    summary = await crud_summary.get(id)
+    if not summary:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Summary not found")
+    return summary
+
+
+@router.get("/", response_model=SummarySchemaList)
 async def read_all_summaries():
     return await crud_summary.get_all()
 
 
 @router.put("/{id}", response_model=SummarySchema)
-async def update_summary(payload: SummaryUpdatePayloadSchema, id: int = Path(..., gt=0)):
-    summary = await crud_summary.put(id, payload)
-    if not summary:
-        raise HTTPException(status_code=404, detail="Summary not found")
-    return summary
-
-
-@router.delete("/{id}", response_model=SummaryResponseSchema)
-async def delete_summary(id: int = Path(..., gt=0)):
+async def update_summary(
+    payload: SummaryPayloadSchema,
+    id: UUID = Path(...),
+    current_user: UserInDBSchema = Depends(get_current_active_user),
+):
     summary = await crud_summary.get(id)
     if not summary:
-        raise HTTPException(status_code=404, detail="Summary not found")
-    await crud_summary.delete(id)
-    return SummaryResponseSchema(id=summary["id"], url=summary["url"])
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Summary not found")
+    if user := await crud_user.get(current_user.id):
+        if (summary["user_id"] == current_user.id) or user["is_superuser"]:
+            updated = await crud_summary.put(id, payload)
+            celery_generate_summary.delay(id, payload.url)
+            return updated
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient rights to update this summary"
+            )
+
+
+@router.delete("/{id}", response_model=SummarySchema)
+async def delete_summary(id: UUID = Path(...), current_user: UserInDBSchema = Depends(get_current_active_user)):
+    summary = await crud_summary.get(id)
+    if not summary:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Summary not found")
+    if user := await crud_user.get(current_user.id):
+        if (summary["user_id"] == current_user.id) or user["is_superuser"]:
+            await crud_summary.delete(id)
+            return summary
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient rights to delete this summary"
+            )

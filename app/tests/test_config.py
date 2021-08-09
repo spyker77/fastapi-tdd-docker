@@ -8,5 +8,4 @@ def test_get_settings_logging(caplog):
     # Clear the cache first due to using the lru_cache decorator and then call.
     get_settings.cache_clear()
     get_settings()
-    print(caplog.text)
     assert "Loading config settings from the environment..." in caplog.text

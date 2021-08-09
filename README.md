@@ -16,6 +16,7 @@ This is the implementation of [the course](https://testdriven.io/courses/tdd-fas
 -   BackgroundTasks replaced witn Celery, Redis and RabbitMQ
 -   Optimised CI/CD pipeline in GitHub Actions
 -   Migrated to the Container registry from the Docker registry
+-   Implemented authentication and authorization using OAuth2
 
 ### Quick Start
 
@@ -31,4 +32,4 @@ Generate the database schema on first launch:
 docker compose exec web python init_db.py
 ```
 
-Open in your browser: <http://localhost:8004/docs>
+Open in your browser: <http://localhost:8000/docs>
