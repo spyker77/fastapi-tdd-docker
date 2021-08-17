@@ -24,8 +24,8 @@ class AppSettings(BaseSettings):
     MODELS: List[str] = Field(["app.models", "aerich.models"])
     ORIGINS: List[AnyHttpUrl] = Field(
         [
-            "http://guarded-waters-54698.herokuapp.com",
-            "https://guarded-waters-54698.herokuapp.com",
+            "http://fastapi-tdd-docker-spyker77.herokuapp.com",
+            "https://fastapi-tdd-docker-spyker77.herokuapp.com",
             "http://localhost",
             "https://localhost",
         ]

@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test]
     env:
-      HEROKU_APP_NAME: guarded-waters-54698
+      HEROKU_APP_NAME: fastapi-tdd-docker-spyker77
       HEROKU_REGISTRY_WEB_IMAGE: registry.heroku.com/${HEROKU_APP_NAME}/web
       HEROKU_REGISTRY_WORKER_IMAGE: registry.heroku.com/${HEROKU_APP_NAME}/worker
     steps:
