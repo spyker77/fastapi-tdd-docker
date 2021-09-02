@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from tortoise.contrib.fastapi import register_tortoise
 
-from app.api import token
+from app.api import home_page, token
 from app.api.v2.routers import api_router_v2
 from app.config import get_settings
 
@@ -41,7 +41,7 @@ def create_application(api_versions: List[str] = ["v2"]) -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    # First include the OAuth2 access token and then all APIs.
+    application.include_router(home_page.router)
     application.include_router(token.router)
     for version in api_versions:
         application.include_router(API_VERSIONS_ROUTERS[version])
