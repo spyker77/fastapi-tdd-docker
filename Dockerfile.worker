@@ -73,4 +73,4 @@ RUN chown -R app:app /home/app
 USER app
 
 # Run celery
-CMD celery -A app.background.worker worker -l INFO
+CMD celery -A app.background.worker worker --without-heartbeat --without-gossip --without-mingle -l INFO
