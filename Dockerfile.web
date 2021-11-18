@@ -24,13 +24,6 @@ RUN pip install --upgrade pip \
     && poetry export -f requirements.txt --output requirements.txt \
     && pip wheel --no-cache-dir --no-deps --wheel-dir /code/wheels -r requirements.txt
 
-# Lint
-COPY . .
-RUN pip install black flake9 isort \
-    && flake8 . \
-    && black --exclude=migrations . \
-    && isort .
-
 
 #########
 # FINAL #
