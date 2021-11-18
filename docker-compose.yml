@@ -5,10 +5,10 @@ services:
     image: redis:6-alpine
 
   rabbitmq:
-    image: rabbitmq:3.8-management
-  
+    image: rabbitmq:3.9-management
+
   db:
-    image: postgres:13-alpine
+    image: postgres:14-alpine
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
@@ -27,13 +27,13 @@ services:
     volumes:
       - .:/code
     ports:
-      - 8000:8000
+      - "8000:8000"
     depends_on:
       - redis
       - rabbitmq
       - db
     command: gunicorn -b 0.0.0.0 -k uvicorn.workers.UvicornWorker app.main:app
-  
+
   worker:
     build: .
     environment:
@@ -48,7 +48,9 @@ services:
       - .:/code
     depends_on:
       - web
-    command: ./scripts/wait-for-it.sh -t 5 amqp://rabbitmq -- celery -A app.background.worker worker --without-heartbeat --without-gossip --without-mingle -l INFO
+    command: ./scripts/wait-for-it.sh -t 5 amqp://rabbitmq -- celery -A
+      app.background.worker worker --without-heartbeat --without-gossip
+      --without-mingle -l INFO
 
 volumes:
-  postgresql_data:
+  postgresql_data: null

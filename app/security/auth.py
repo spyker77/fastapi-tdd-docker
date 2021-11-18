@@ -30,8 +30,8 @@ def verify_password(plain_password, hashed_password):
 
 
 async def get_user(username: Optional[str]):
-    if user := await User.filter(username=username).first().values():
-        return UserInDBSchema(**user[0])
+    if user := await User.filter(username=username).first():
+        return UserInDBSchema(**dict(user))
 
 
 async def authenticate_user(username: str, password: str):

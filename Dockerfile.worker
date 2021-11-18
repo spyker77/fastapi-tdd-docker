@@ -3,14 +3,17 @@
 ###########
 
 # Pull official base image
-FROM python:3.9-slim-buster as builder
+FROM python:3.10-slim-buster as builder
 
 # Set work directory
 WORKDIR /code
 
 # Install system dependencies
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends build-essential netcat postgresql \
+    && apt-get install -y --no-install-recommends \
+    build-essential \
+    netcat \
+    postgresql \
     && rm -rf /var/lib/apt/lists/*
 
 # Set environment variables
@@ -21,12 +24,12 @@ ENV PYTHONUNBUFFERED=1
 COPY ./pyproject.toml .
 RUN pip install --upgrade pip \
     && pip install poetry \
-    && poetry export -f requirements.txt --output requirements.txt --dev \
+    && poetry export -f requirements.txt --output requirements.txt \
     && pip wheel --no-cache-dir --no-deps --wheel-dir /code/wheels -r requirements.txt
 
 # Lint
 COPY . .
-RUN pip install black==21.6b0 flake9 isort \
+RUN pip install black flake9 isort \
     && flake8 . \
     && black --exclude=migrations . \
     && isort .
@@ -37,7 +40,7 @@ RUN pip install black==21.6b0 flake9 isort \
 #########
 
 # Pull official base image
-FROM python:3.9-slim-buster
+FROM python:3.10-slim-buster
 
 # Set working directory
 WORKDIR /home/app/web
@@ -54,7 +57,10 @@ ENV TESTING=0
 
 # Install system dependencies
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends build-essential netcat postgresql \
+    && apt-get install -y --no-install-recommends \
+    build-essential \
+    netcat \
+    postgresql \
     && rm -rf /var/lib/apt/lists/*
 
 # Install python dependencies

@@ -12,8 +12,8 @@ async def post(payload: SummaryPayloadSchema, user_id: UUID) -> Summary:
 
 
 async def get(id: UUID) -> Optional[Dict]:
-    if summary := await Summary.filter(id=id).first().values():
-        return summary[0]
+    if summary := await Summary.filter(id=id).first():
+        return dict(summary)
     return None
 
 
@@ -24,8 +24,8 @@ async def get_all() -> List[Dict]:
 async def put(id: UUID, payload: SummaryPayloadSchema) -> Dict:
     new_data = payload.dict(exclude_unset=True, exclude_defaults=True, exclude_none=True)
     await Summary.filter(id=id).update(**new_data)
-    updated_summary = await Summary.filter(id=id).first().values()
-    return updated_summary[0]
+    updated_summary = await Summary.filter(id=id).first()
+    return dict(updated_summary)  # type: ignore
 
 
 async def delete(id: UUID) -> None:

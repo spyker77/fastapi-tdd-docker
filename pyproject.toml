@@ -16,6 +16,10 @@ max-line-length = 119
 profile = "black"
 skip_glob = [".mypy_cache", ".pytest_cache", "migrations"]
 
+[tool.coverage]
+[tool.coverage.run]
+omit = ["*tests*"]
+
 [tool.poetry]
 authors = ["Evgeni Sautin <evgeni.sautin@gmail.com>"]
 description = "Test-driven development with FastAPI and Docker"
@@ -30,24 +34,23 @@ fastapi = "^0.65.1"
 gunicorn = "^20.1.0"
 newspaper3k = "^0.2.8"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
-python = "^3.9"
+python = "^3.10"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 python-multipart = "^0.0.5"
 redis = "^3.5.3"
-tortoise-orm = {extras = ["asyncpg", "aiosqlite", "accel"], version = "^0.17.6"}
+tortoise-orm = {extras = ["asyncpg", "aiomysql"], version = "^0.17.8"}
 uvicorn = {extras = ["standard"], version = "^0.14.0"}
 
 [tool.poetry.dev-dependencies]
 bandit = "^1.7.0"
-# Fixed version due to incompatibility issues with the latest one.
-black = "21.5b2"
+black = "^21.11b1"
 flake9 = "^3.8.3"
 isort = "^5.8.0"
 mypy = "^0.812"
 pylint = "^2.8.3"
 pytest = "^6.2.4"
 pytest-asyncio = "^0.15.1"
-pytest-cov = "^2.12.1"
+pytest-cov = {extras = ["toml"], version = "^3.0.0"}
 
 [build-system]
 build-backend = "poetry.core.masonry.api"

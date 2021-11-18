@@ -18,8 +18,8 @@ async def post(payload: UserCreatePayloadSchema) -> User:
 
 
 async def get(id: UUID) -> Optional[Dict]:
-    if user := await User.filter(id=id).first().values():
-        return user[0]
+    if user := await User.filter(id=id).first():
+        return dict(user)
     return None
 
 
@@ -39,8 +39,8 @@ async def put(id: UUID, payload: UserUpdatePayloadSchema) -> Dict:
         new_data["hashed_password"] = create_password_hash(new_data["password"])
         del new_data["password"]
     await User.filter(id=id).update(**new_data)
-    updated_user = await User.filter(id=id).first().values()
-    return updated_user[0]
+    updated_user = await User.filter(id=id).first()
+    return dict(updated_user)  # type: ignore
 
 
 async def delete(id: UUID) -> None:

@@ -4,14 +4,14 @@
 
 This is the implementation of [the course](https://testdriven.io/courses/tdd-fastapi/) with the following changes so far:
 
-- Python image updated to the latest version 3.9
+- Python image updated to the latest version 3.10
 - Dependencies updated to the latest version at the moment
 - Migrations added via Aerich from Tortoise-ORM
 - CORSMiddleware used to manually control allowed origins
 - Venv replaced with poetry
 - Added versions of the API
 - Refactored the code
-- Test coverage increased from 86 to 94%
+- Test coverage increased from 86 to 96%
 - Gunicorn added to manage the uvicorn
 - BackgroundTasks replaced witn Celery, Redis and RabbitMQ
 - Optimised CI/CD pipeline in GitHub Actions
