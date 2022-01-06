@@ -28,7 +28,7 @@ version = "2.0.0"
 
 [tool.poetry.dependencies]
 aerich = "^0.5.3"
-celery = "^5.1.0"
+celery = "^5.2.2"
 email-validator = "^1.1.3"
 fastapi = "^0.65.1"
 gunicorn = "^20.1.0"
