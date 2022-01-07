@@ -11,7 +11,9 @@ repos:
         entry: black .
         language: python
         files: \.py$
+        exclude: migrations
       - id: isort
         name: Run isort
         entry: isort .
         language: python
+        files: \.py$

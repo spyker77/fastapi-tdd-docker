@@ -19,10 +19,11 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Install python dependencies
-COPY ./pyproject.toml .
+COPY poetry.lock .
+COPY pyproject.toml .
 RUN pip install --upgrade pip \
     && pip install poetry \
-    && poetry export -f requirements.txt --output requirements.txt --dev \
+    && poetry export -f requirements.txt --output requirements.txt --dev --without-hashes \
     && pip install -r requirements.txt
 
 # Add app
