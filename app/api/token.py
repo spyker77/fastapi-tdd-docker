@@ -3,11 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from app.config import get_settings
 from app.schemas.token import TokenSchema
-from app.security.auth import (
-    ACCESS_TOKEN_EXPIRE_DAYS,
-    authenticate_user,
-    create_access_token,
-)
+from app.security.auth import ACCESS_TOKEN_EXPIRE_DAYS, authenticate_user, create_access_token
 
 settings = get_settings()
 router = APIRouter(prefix=settings.AUTH_TOKEN_URL, tags=["token"])

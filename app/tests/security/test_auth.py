@@ -3,12 +3,7 @@ from tortoise import Tortoise
 
 from app.config import get_settings
 from app.models import User
-from app.security.auth import (
-    create_access_token,
-    create_password_hash,
-    get_current_active_user,
-    get_current_user,
-)
+from app.security.auth import create_access_token, create_password_hash, get_current_active_user, get_current_user
 
 settings = get_settings()
 
