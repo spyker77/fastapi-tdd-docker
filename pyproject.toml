@@ -16,7 +16,7 @@ skip_glob = ["*/migrations/*"]
 omit = ["*/migrations/*", "tests/*", "*conftest.py"]
 
 [tool.pytest.ini_options]
-addopts = "--cov-report term-missing --strict-markers --reuse-db"
+addopts = "--cov-report term-missing --strict-markers"
 python_files = ["tests.py", "test_*.py", "*_tests.py"]
 
 [tool.poetry]
