@@ -15,14 +15,19 @@ ENV PYTHONUNBUFFERED=1
 
 # Install system dependencies
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends build-essential netcat postgresql \
+    && apt-get install -y --no-install-recommends \
+    build-essential \
+    netcat \
+    postgresql \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Install python dependencies
 COPY poetry.lock .
 COPY pyproject.toml .
 RUN pip install --upgrade pip \
-    && pip install poetry \
+    && curl -sSL https://install.python-poetry.org | python3 - \
+    && export PATH="/root/.local/bin:$PATH" \
     && poetry export -f requirements.txt --output requirements.txt --dev --without-hashes \
     && pip install -r requirements.txt
 
