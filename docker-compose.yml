@@ -2,10 +2,10 @@ version: '3.8'
 
 services:
   redis:
-    image: redis:6-alpine
+    image: redis:7-alpine
 
   rabbitmq:
-    image: rabbitmq:3.9-management
+    image: rabbitmq:3.10-management
 
   db:
     image: postgres:14-alpine
@@ -48,9 +48,7 @@ services:
       - .:/code
     depends_on:
       - web
-    command: ./scripts/wait-for-it.sh -t 5 amqp://rabbitmq -- celery -A
-      app.background.worker worker --without-heartbeat --without-gossip
-      --without-mingle -l INFO
+    command: ./scripts/wait-for-it.sh -t 5 amqp://rabbitmq -- celery -A app.background.worker worker --without-heartbeat --without-gossip --without-mingle -l INFO
 
 volumes:
   postgresql_data: null
