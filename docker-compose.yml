@@ -5,10 +5,10 @@ services:
     image: redis:7-alpine
 
   rabbitmq:
-    image: rabbitmq:3.10-management
+    image: rabbitmq:3.11-management
 
   db:
-    image: postgres:14-alpine
+    image: postgres:15.2-alpine
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:

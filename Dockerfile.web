@@ -3,7 +3,7 @@
 ###########
 
 # Pull official base image
-FROM python:3.10-slim-buster as builder
+FROM python:3.11-slim-buster as builder
 
 # Set work directory
 WORKDIR /code
@@ -36,7 +36,7 @@ RUN pip install --upgrade pip \
 #########
 
 # Pull official base image
-FROM python:3.10-slim-buster
+FROM python:3.11-slim-buster
 
 # Set working directory
 WORKDIR /home/app/web
