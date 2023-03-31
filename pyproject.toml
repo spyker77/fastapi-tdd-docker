@@ -36,7 +36,7 @@ passlib = { extras = ["bcrypt"], version = "^1.7.4" }
 python = "^3.11"
 python-jose = { extras = ["cryptography"], version = "^3.3.0" }
 python-multipart = "^0.0.6"
-redis = "^4.5.3"
+redis = "^4.5.4"
 tortoise-orm = { extras = ["asyncpg", "aiomysql"], version = "^0.19.3" }
 uvicorn = { extras = ["standard"], version = "^0.21.1" }
 
