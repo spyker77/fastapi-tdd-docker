@@ -7,33 +7,22 @@ from pydantic import AnyHttpUrl, AnyUrl, BaseSettings, Field
 log = logging.getLogger("uvicorn")
 
 
-class DockerSettings(BaseSettings):
-    ENVIRONMENT: str = "dev"
-    TESTING: bool = False
-    # To generate a new SECRET_KEY, run this command:
-    # openssl rand -hex 32
+class Settings(BaseSettings):
+    ENVIRONMENT: str
+    TESTING: bool
+    # To generate a new SECRET_KEY, run this command: openssl rand -hex 32
     SECRET_KEY: str
-    DATABASE_URL: str = Field("postgres://postgres@db/postgres")
-    DATABASE_TEST_URL: str = Field("sqlite://:memory:")
-    BROKER_URL: AnyUrl = Field("amqp://rabbitmq")
-    RESULT_BACKEND: AnyUrl = Field("redis://redis")
+    DATABASE_URL: str
+    DATABASE_TEST_URL: str
+    BROKER_URL: AnyUrl
+    RESULT_BACKEND: AnyUrl
 
-
-class AppSettings(BaseSettings):
     AUTH_TOKEN_URL: str = "/api/token"
-    MODELS: List[str] = Field(["app.models", "aerich.models"])
-    ORIGINS: List[AnyHttpUrl] = Field(
-        [
-            "http://fastapi-tdd-docker-spyker77.herokuapp.com",
-            "https://fastapi-tdd-docker-spyker77.herokuapp.com",
-            "http://localhost",
-            "https://localhost",
-        ]
-    )
+    ORIGINS: List[AnyHttpUrl] = Field(["http://localhost", "https://localhost"])
 
-
-class Settings(DockerSettings, AppSettings):
-    pass
+    class Config:
+        env_prefix = ""
+        case_sensitive = False
 
 
 @lru_cache()

@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
+from app.database import get_db
 from app.schemas.token import TokenSchema
 from app.security.auth import ACCESS_TOKEN_EXPIRE_DAYS, authenticate_user, create_access_token
 
@@ -10,8 +12,8 @@ router = APIRouter(prefix=settings.AUTH_TOKEN_URL, tags=["token"])
 
 
 @router.post("/", response_model=TokenSchema, description=f"⚠️ Token is valid for {ACCESS_TOKEN_EXPIRE_DAYS} days.")
-async def issue_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = await authenticate_user(form_data.username, form_data.password)
+async def issue_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+    user = await authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

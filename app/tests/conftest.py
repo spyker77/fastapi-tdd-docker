@@ -1,12 +1,14 @@
-from typing import Iterator, NewType
+from contextlib import asynccontextmanager
 
 import pytest
-from fastapi.testclient import TestClient
-from requests.models import Response
-from tortoise.contrib.fastapi import register_tortoise
+from httpx import AsyncClient
+from psycopg import AsyncConnection
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.config import Settings, get_settings
+from app.database import get_db
 from app.main import create_application
+from app.models import Base
 
 TEST_USER = {
     "username": "test_user",
@@ -14,8 +16,6 @@ TEST_USER = {
     "full_name": "Test User",
     "password": "secret",
 }
-
-JWT = NewType("JWT", str)
 
 settings = get_settings()
 
@@ -28,40 +28,44 @@ app = create_application(api_versions=["v2"])
 app.dependency_overrides[get_settings] = get_settings_override
 
 
-@pytest.fixture(scope="function")
-def test_client_with_db() -> Iterator[TestClient]:
-    register_tortoise(
-        app,
-        db_url=get_settings_override().DATABASE_URL,
-        modules={"models": settings.MODELS},
-        generate_schemas=True,
-        add_exception_handlers=True,
-    )
-    with TestClient(app) as test_client:
-        yield test_client
+async_engine = create_async_engine(settings.DATABASE_TEST_URL, connect_args={"check_same_thread": False})
+async_session = async_sessionmaker(async_engine, expire_on_commit=False)
 
 
-@pytest.fixture(scope="function")
-def create_test_user(test_client_with_db: TestClient) -> Response:
-    response = test_client_with_db.post(url=app.url_path_for("create_user"), json=TEST_USER)
-    return response
+@asynccontextmanager
+async def setup_database() -> AsyncConnection:
+    async with async_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    try:
+        yield
+    finally:
+        await async_engine.dispose()
 
 
-@pytest.fixture(scope="function")
-def issued_test_token(test_client_with_db: TestClient) -> JWT:
-    response = test_client_with_db.post(
-        url=app.url_path_for("issue_access_token"),
-        data={"username": TEST_USER["username"], "password": TEST_USER["password"]},
-    )
-    tokens = response.json()
-    return tokens["access_token"]
+@pytest.fixture
+@asynccontextmanager
+async def session() -> AsyncSession:
+    async with setup_database():
+        db = async_session()
+        try:
+            yield db
+        finally:
+            await db.close()
 
 
-@pytest.fixture(scope="function")
-def create_test_summary(test_client_with_db: TestClient, issued_test_token: str) -> Response:
-    response = test_client_with_db.post(
-        url=app.url_path_for("create_summary"),
-        json={"url": "https://lipsum.com/"},
-        headers={"Authorization": f"Bearer {issued_test_token}"},
-    )
-    return response
+@pytest.fixture
+@asynccontextmanager
+async def test_client_with_db() -> AsyncClient:
+    async with setup_database():
+
+        async def override_get_db() -> AsyncSession:
+            db = async_session()
+            try:
+                yield db
+            finally:
+                await db.close()
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        async with AsyncClient(app=app, base_url="http://localhost:8000") as test_client:
+            yield test_client

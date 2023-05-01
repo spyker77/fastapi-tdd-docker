@@ -1,43 +1,49 @@
-from tortoise.fields import data, relational
-from tortoise.models import Model
+from uuid import uuid4
+
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String, func
+from sqlalchemy.orm import DeclarativeBase, relationship
+from sqlalchemy_utils import UUIDType
+
+
+class Base(DeclarativeBase):
+    pass
 
 
 class TimestampMixin:
-    created_at = data.DatetimeField(auto_now_add=True)
-    modified_at = data.DatetimeField(auto_now=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    modified_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
-class AbstractBaseModel(Model):
-    id = data.UUIDField(pk=True, index=True)
+class AbstractBaseModel(TimestampMixin, Base):
+    __abstract__ = True
 
-    class Meta:
-        abstract = True
+    id = Column(UUIDType(binary=False), primary_key=True, default=uuid4, unique=True, nullable=False, index=True)
 
 
-class Summary(TimestampMixin, AbstractBaseModel):
-    url = data.TextField()
-    summary = data.TextField()
-    user: relational.ForeignKeyRelation["User"] = relational.ForeignKeyField("models.User", related_name="summaries")
+class Summary(AbstractBaseModel):
+    __tablename__ = "summaries"
 
-    class Meta:
-        ordering = ["created_at"]
+    url = Column(String)
+    summary = Column(String)
+    user_id = Column(UUIDType(binary=False), ForeignKey("users.id"))
+
+    user = relationship("User", back_populates="summaries")
 
     def __str__(self):
         return self.url
 
 
-class User(TimestampMixin, AbstractBaseModel):
-    username = data.CharField(max_length=255, unique=True, index=True)
-    email = data.CharField(max_length=255, unique=True, index=True)
-    full_name = data.TextField()
-    is_active = data.BooleanField(default=True)
-    is_superuser = data.BooleanField(default=False)
-    hashed_password = data.TextField()
+class User(AbstractBaseModel):
+    __tablename__ = "users"
 
-    summaries: relational.ReverseRelation[Summary]
+    username = Column(String(255), unique=True, nullable=False, index=True)
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    full_name = Column(String)
+    is_active = Column(Boolean, default=True)
+    is_superuser = Column(Boolean, default=False)
+    hashed_password = Column(String)
 
-    class Meta:
-        ordering = ["username"]
+    summaries = relationship("Summary", back_populates="user")
 
     def __str__(self):
         return self.username

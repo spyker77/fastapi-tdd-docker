@@ -1,4 +1,4 @@
-from typing import List, Type
+from typing import List, TypeAlias
 from uuid import UUID
 
 from pydantic import AnyHttpUrl, BaseModel
@@ -11,7 +11,7 @@ class SummarySchema(BaseModel):
     user_id: UUID
 
 
-SummarySchemaList: Type[List] = List[SummarySchema]
+SummarySchemaList: TypeAlias = List[SummarySchema]
 
 
 class SummaryPayloadSchema(BaseModel):

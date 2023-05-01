@@ -1,4 +1,4 @@
-from typing import List, Optional, Type
+from typing import List, Optional, TypeAlias
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr
@@ -11,7 +11,7 @@ class UserSchema(BaseModel):
     full_name: Optional[str] = None
 
 
-UserSchemaList: Type[List] = List[UserSchema]
+UserSchemaList: TypeAlias = List[UserSchema]
 
 
 class UserInDBSchema(UserSchema):

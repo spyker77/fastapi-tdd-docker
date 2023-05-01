@@ -1,42 +1,36 @@
-from typing import Optional
+import asyncio
 from uuid import UUID
 
 import nltk
-from newspaper import Article, Config
+from newspaper import Article
 from pydantic import AnyHttpUrl
-from tortoise import Tortoise, run_async
+from sqlalchemy import select
 
-from app.config import get_settings
+from app.database import async_session, get_settings
 from app.models import Summary
 
 from .worker import celery
 
-CUSTOM_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:90.0) Gecko/20100101 Firefox/90.0"
-
-config = Config()
-
-config.browser_user_agent = CUSTOM_USER_AGENT
-
 settings = get_settings()
 
-
-async def _update_summary(summary_id: UUID, summary: AnyHttpUrl, db_url: str) -> None:
-    await Tortoise.init(db_url=db_url, modules={"models": settings.MODELS})
-    await Summary.filter(id=summary_id).update(summary=summary)
+try:
+    nltk.data.find("tokenizers/punkt")
+except LookupError:
+    nltk.download("punkt")
 
 
 @celery.task(name="celery_generate_summary")
-def celery_generate_summary(summary_id: UUID, url: AnyHttpUrl, db_url: str = settings.DATABASE_URL) -> Optional[bool]:
-    article = Article(url, config=config)
+def celery_generate_summary(summary_id: UUID, url: AnyHttpUrl) -> None:
+    article = Article(url)
     article.download()
     article.parse()
-    try:
-        nltk.data.find("tokenizers/punkt")
-    except LookupError:
-        nltk.download("punkt")
-    finally:
-        article.nlp()
-    summary = article.summary
-    # Open a new connection on every update and close it automatically by run_async() helper.
-    run_async(_update_summary(summary_id, summary, db_url))
-    return True
+    article.nlp()
+
+    async def update_summary(summary_id: UUID, summary: str) -> None:
+        async with async_session() as db:
+            result = await db.execute(select(Summary).where(Summary.id == summary_id))
+            summary_to_update = result.scalar_one()
+            summary_to_update.summary = summary
+            await db.commit()
+
+    asyncio.run(update_summary(summary_id, article.summary))

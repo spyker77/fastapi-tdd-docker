@@ -20,10 +20,10 @@ services:
       - ENVIRONMENT=dev
       - TESTING=0
       - SECRET_KEY=697be90749590b29ad92e0f8b5a0e7d11cf895403af9858ba7813bd51aac5795
-      # - DATABASE_URL=<replace_it_with_your_database_url>
-      # - DATABASE_TEST_URL=<replace_it_with_your_database_test_url>
-      # - BROKER_URL=<replace_it_with_your_rabbitmq_url>
-      # - RESULT_BACKEND=<replace_it_with_your_redis_url>
+      - DATABASE_URL=postgresql+psycopg://postgres@db/postgres
+      - DATABASE_TEST_URL=sqlite+aiosqlite://
+      - BROKER_URL=amqp://rabbitmq
+      - RESULT_BACKEND=redis://redis
     volumes:
       - .:/code
     ports:
@@ -40,10 +40,10 @@ services:
       - ENVIRONMENT=dev
       - TESTING=0
       - SECRET_KEY=697be90749590b29ad92e0f8b5a0e7d11cf895403af9858ba7813bd51aac5795
-      # - DATABASE_URL=<replace_it_with_your_database_url>
-      # - DATABASE_TEST_URL=<replace_it_with_your_database_test_url>
-      # - BROKER_URL=<replace_it_with_your_rabbitmq_url>
-      # - RESULT_BACKEND=<replace_it_with_your_redis_url>
+      - DATABASE_URL=postgresql+psycopg://postgres@db/postgres
+      - DATABASE_TEST_URL=sqlite+aiosqlite://
+      - BROKER_URL=amqp://rabbitmq
+      - RESULT_BACKEND=redis://redis
     volumes:
       - .:/code
     depends_on:

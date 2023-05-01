@@ -1,47 +1,66 @@
 from typing import Dict, List, Optional
 from uuid import UUID
 
+from fastapi import Depends
+from sqlalchemy import delete, select, update
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.database import get_db
 from app.models import Summary, User
 from app.schemas.user import UserCreatePayloadSchema, UserUpdatePayloadSchema
 from app.security.auth import create_password_hash
 
 
-async def post(payload: UserCreatePayloadSchema) -> User:
+async def post(payload: UserCreatePayloadSchema, db: AsyncSession = Depends(get_db)) -> User:
     user = User(
         username=payload.username,
         email=payload.email,
         full_name=payload.full_name,
         hashed_password=create_password_hash(payload.password),
     )
-    await user.save()
-    return user
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return user.__dict__
 
 
-async def get(id: UUID) -> Optional[Dict]:
-    if user := await User.filter(id=id).first():
-        return dict(user)
+async def get(user_id: UUID, db: AsyncSession = Depends(get_db)) -> Optional[Dict]:
+    result = await db.execute(select(User).filter_by(id=user_id))
+    user = result.scalars().first()
+    if user:
+        return user.__dict__
     return None
 
 
-async def get_all() -> List[Dict]:
-    return await User.all().values()
+async def get_all(db: AsyncSession = Depends(get_db)) -> List[Dict]:
+    result = await db.execute(select(User))
+    users = result.scalars().all()
+    return [user.__dict__ for user in users]
 
 
-async def get_my_summaries(user_id: UUID) -> Optional[List[Dict]]:
-    if summaries := await Summary.filter(user_id=user_id).values():
-        return summaries
+async def get_my_summaries(user_id: UUID, db: AsyncSession = Depends(get_db)) -> Optional[List[Dict]]:
+    result = await db.execute(select(Summary).filter_by(user_id=user_id))
+    summaries = result.scalars().all()
+    if summaries:
+        return [summary.__dict__ for summary in summaries]
     return None
 
 
-async def put(id: UUID, payload: UserUpdatePayloadSchema) -> Dict:
+async def put(user_id: UUID, payload: UserUpdatePayloadSchema, db: AsyncSession = Depends(get_db)) -> Dict:
     new_data = payload.dict(exclude_unset=True, exclude_defaults=True, exclude_none=True)
     if "password" in new_data:
         new_data["hashed_password"] = create_password_hash(new_data["password"])
         del new_data["password"]
-    await User.filter(id=id).update(**new_data)
-    updated_user = await User.filter(id=id).first()
-    return dict(updated_user)  # type: ignore
+
+    await db.execute(update(User).where(User.id == user_id).values(**new_data))
+    await db.commit()
+
+    result = await db.execute(select(User).filter_by(id=user_id))
+    updated_user = result.scalars().first()
+
+    return updated_user.__dict__
 
 
-async def delete(id: UUID) -> None:
-    await User.filter(id=id).delete()
+async def remove(user_id: UUID, db: AsyncSession = Depends(get_db)) -> None:
+    await db.execute(delete(User).where(User.id == user_id))
+    await db.commit()

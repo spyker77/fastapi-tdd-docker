@@ -4,19 +4,18 @@
 
 This is the implementation of [the course](https://testdriven.io/courses/tdd-fastapi/) with the following changes so far:
 
-- Python image updated to the latest version 3.10
+- Python image updated to the latest version 3.11
 - Dependencies updated to the latest version at the moment
-- Migrations added via Aerich from Tortoise-ORM
 - CORSMiddleware used to manually control allowed origins
 - Venv replaced with poetry
 - Added versions of the API
 - Refactored the code
-- Test coverage increased from 86 to 96%
 - Gunicorn added to manage the uvicorn
-- BackgroundTasks replaced witn Celery, Redis and RabbitMQ
-- Optimised CI/CD pipeline in GitHub Actions
+- BackgroundTasks replaced with Celery, Redis and RabbitMQ
+- Optimized CI/CD pipeline in GitHub Actions
 - Migrated to the Container registry from the Docker registry
 - Implemented authentication and authorization using OAuth2
+– Tortoise-ORM has been replaced by SQLAlchemy
 
 ## Quick Start
 
@@ -29,7 +28,7 @@ docker compose up -d --build
 Generate the database schema on first launch:
 
 ```bash
-docker compose exec web python init_db.py
+docker compose exec web alembic upgrade head
 ```
 
 Open in your browser: <http://localhost:8000/docs>
