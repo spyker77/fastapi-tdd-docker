@@ -18,7 +18,7 @@ jobs:
       - name: Pytest
         run: docker-compose exec -T web pytest .
       - name: Ruff
-        run: docker-compose exec -T web ruff --check .
+        run: docker-compose exec -T web ruff check .
       - name: Black
         run: docker-compose exec -T web black --check .
 
