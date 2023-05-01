@@ -15,7 +15,7 @@ This is the implementation of [the course](https://testdriven.io/courses/tdd-fas
 - Optimized CI/CD pipeline in GitHub Actions
 - Migrated to the Container registry from the Docker registry
 - Implemented authentication and authorization using OAuth2
-– Tortoise-ORM has been replaced by SQLAlchemy
+- Tortoise-ORM has been replaced by SQLAlchemy
 
 ## Quick Start
 
