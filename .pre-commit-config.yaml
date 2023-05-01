@@ -1,21 +1,18 @@
 repos:
   - repo: local
     hooks:
+      - id: ruff
+        name: Run ruff
+        entry: ruff . --fix
+        language: python
+        files: \.py$
       - id: black
         name: Run black
         entry: black .
         language: python
         files: \.py$
-        exclude: migrations
-      - id: isort
-        name: Run isort
-        entry: isort .
+      - id: bandit
+        name: Run bandit
+        entry: bandit -c pyproject.toml -r .
         language: python
         files: \.py$
-        exclude: migrations
-      - id: flake8
-        name: Run flake8
-        entry: flake8 .
-        language: python
-        files: \.py$
-        exclude: migrations

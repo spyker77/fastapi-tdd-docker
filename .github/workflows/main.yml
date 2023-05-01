@@ -17,12 +17,10 @@ jobs:
         run: docker-compose up -d
       - name: Pytest
         run: docker-compose exec -T web pytest .
-      - name: Flake8
-        run: docker-compose exec -T web flake8 .
+      - name: Ruff
+        run: docker-compose exec -T web ruff --check .
       - name: Black
-        run: docker-compose exec -T web black . --check
-      - name: isort
-        run: docker-compose exec -T web isort . --check-only
+        run: docker-compose exec -T web black --check .
 
   # Disable continuous delivery to Heroku.
   # build-and-deploy:
