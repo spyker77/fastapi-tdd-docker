@@ -8,19 +8,21 @@ env:
 
 jobs:
   test:
-    name: Test with Docker Compose
+    name: Test and check quality
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build and run containers
         run: docker-compose up -d
-      - name: Pytest
-        run: docker-compose exec -T web pytest .
-      - name: Ruff
+      - name: Check for pending database schema upgrade
+        run: docker-compose exec -T web alembic check
+      - name: Check code linting with ruff
         run: docker-compose exec -T web ruff check .
-      - name: Black
+      - name: Check code formatting with black
         run: docker-compose exec -T web black --check .
+      - name: Test code with pytest
+        run: docker-compose exec -T web pytest -n auto cov
 
   # Disable continuous delivery to Heroku.
   # build-and-deploy:
