@@ -24,7 +24,7 @@ jobs:
       - name: Check code formatting with black
         run: docker-compose exec -T web black --check .
       - name: Test code with pytest
-        run: docker-compose exec -T web pytest -n auto cov
+        run: docker-compose exec -T web pytest -n auto .
 
   # Disable continuous delivery to Heroku.
   # build-and-deploy:
