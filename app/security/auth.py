@@ -23,23 +23,23 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=settings.AUTH_TOKEN_URL)
 
 
-def create_password_hash(password):
+def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def _verify_password(plain_password, hashed_password):
+def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 
-async def _get_user(username: str, db: AsyncSession):
+async def get_user(username: str, db: AsyncSession):
     result = await db.execute(select(User).where(User.username == username))
     user = result.scalars().first()
-    return UserInDBSchema(**user.__dict__) if user else None
+    return UserInDBSchema.from_orm(user) if user else None
 
 
 async def authenticate_user(username: str, password: str, db: AsyncSession = Depends(get_db)):
-    user = await _get_user(username, db)
-    return user if user and _verify_password(password, user.hashed_password) else False
+    user = await get_user(username, db)
+    return user if user and verify_password(password, user.hashed_password) else False
 
 
 def create_access_token(data: dict, expires_delta: timedelta = timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)):
@@ -63,7 +63,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
             raise credentials_exception
 
         token_data = TokenDataSchema(username=username)
-        user = await _get_user(token_data.username, db)
+        user = await get_user(token_data.username, db)
         if not user:
             raise credentials_exception
 

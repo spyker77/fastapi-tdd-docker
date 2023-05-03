@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.models import Summary, User
 from app.schemas.user import UserCreatePayloadSchema, UserUpdatePayloadSchema
-from app.security.auth import create_password_hash
+from app.security.auth import get_password_hash
 
 
 async def post(payload: UserCreatePayloadSchema, db: AsyncSession = Depends(get_db)) -> User:
@@ -16,40 +16,40 @@ async def post(payload: UserCreatePayloadSchema, db: AsyncSession = Depends(get_
         username=payload.username,
         email=payload.email,
         full_name=payload.full_name,
-        hashed_password=create_password_hash(payload.password),
+        hashed_password=get_password_hash(payload.password),
     )
     db.add(user)
     await db.commit()
     await db.refresh(user)
-    return user.__dict__
+    return user
 
 
 async def get(user_id: UUID, db: AsyncSession = Depends(get_db)) -> Optional[Dict]:
     result = await db.execute(select(User).filter_by(id=user_id))
     user = result.scalars().first()
     if user:
-        return user.__dict__
+        return user
     return None
 
 
 async def get_all(db: AsyncSession = Depends(get_db)) -> List[Dict]:
     result = await db.execute(select(User))
     users = result.scalars().all()
-    return [user.__dict__ for user in users]
+    return [user for user in users]
 
 
 async def get_my_summaries(user_id: UUID, db: AsyncSession = Depends(get_db)) -> Optional[List[Dict]]:
     result = await db.execute(select(Summary).filter_by(user_id=user_id))
     summaries = result.scalars().all()
     if summaries:
-        return [summary.__dict__ for summary in summaries]
+        return [summary for summary in summaries]
     return None
 
 
 async def put(user_id: UUID, payload: UserUpdatePayloadSchema, db: AsyncSession = Depends(get_db)) -> Dict:
     new_data = payload.dict(exclude_unset=True, exclude_defaults=True, exclude_none=True)
     if "password" in new_data:
-        new_data["hashed_password"] = create_password_hash(new_data["password"])
+        new_data["hashed_password"] = get_password_hash(new_data["password"])
         del new_data["password"]
 
     await db.execute(update(User).where(User.id == user_id).values(**new_data))
@@ -58,7 +58,7 @@ async def put(user_id: UUID, payload: UserUpdatePayloadSchema, db: AsyncSession 
     result = await db.execute(select(User).filter_by(id=user_id))
     updated_user = result.scalars().first()
 
-    return updated_user.__dict__
+    return updated_user
 
 
 async def remove(user_id: UUID, db: AsyncSession = Depends(get_db)) -> None:

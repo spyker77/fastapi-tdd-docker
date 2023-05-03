@@ -2,7 +2,7 @@ import pytest
 
 from app.config import get_settings
 from app.models import User
-from app.security.auth import create_access_token, create_password_hash, get_current_active_user, get_current_user
+from app.security.auth import create_access_token, get_current_active_user, get_current_user, get_password_hash
 
 settings = get_settings()
 
@@ -49,7 +49,7 @@ async def test_get_current_active_user_is_inactive(session):
         username=payload["username"],
         email=payload["email"],
         full_name=payload["full_name"],
-        hashed_password=create_password_hash(payload["password"]),
+        hashed_password=get_password_hash(payload["password"]),
         is_active=False,
     )
 

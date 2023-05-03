@@ -2,7 +2,7 @@ import pytest
 
 from app.config import get_settings
 from app.models import Summary, User
-from app.security.auth import create_password_hash
+from app.security.auth import get_password_hash
 
 settings = get_settings()
 
@@ -21,7 +21,7 @@ async def test_text_summary_str_method(session):
                 username=payload["username"],
                 email=payload["email"],
                 full_name=payload["full_name"],
-                hashed_password=create_password_hash(payload["password"]),
+                hashed_password=get_password_hash(payload["password"]),
             )
             db.add(user)
             await db.commit()

@@ -10,6 +10,9 @@ class UserSchema(BaseModel):
     email: EmailStr
     full_name: Optional[str] = None
 
+    class Config:
+        orm_mode = True
+
 
 UserSchemaList: TypeAlias = List[UserSchema]
 
@@ -18,6 +21,9 @@ class UserInDBSchema(UserSchema):
     is_active: bool
     is_superuser: bool
     hashed_password: str
+
+    class Config:
+        orm_mode = True
 
 
 class UserPayloadSchema(BaseModel):

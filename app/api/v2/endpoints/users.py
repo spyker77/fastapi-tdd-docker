@@ -62,7 +62,7 @@ async def update_user(
     user = await crud_user.get(user_id=id, db=db)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    if (id == current_user.id) or user["is_superuser"]:
+    if (id == current_user.id) or user.is_superuser:
         updated = await crud_user.put(user_id=id, payload=payload, db=db)
         return updated
     else:
@@ -78,7 +78,7 @@ async def delete_user(
     user = await crud_user.get(user_id=id, db=db)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    if (id == current_user.id) or user["is_superuser"]:
+    if (id == current_user.id) or user.is_superuser:
         await crud_user.remove(user_id=id, db=db)
         return user
     else:

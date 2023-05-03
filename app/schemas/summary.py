@@ -10,6 +10,9 @@ class SummarySchema(BaseModel):
     summary: str
     user_id: UUID
 
+    class Config:
+        orm_mode = True
+
 
 SummarySchemaList: TypeAlias = List[SummarySchema]
 
