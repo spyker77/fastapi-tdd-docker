@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build and run containers
         run: docker-compose up -d
       - name: Apply database migrations
@@ -37,7 +37,7 @@ jobs:
   #     HEROKU_REGISTRY_WORKER_IMAGE: registry.heroku.com/${HEROKU_APP_NAME}/worker
   #   steps:
   #     - name: Checkout
-  #       uses: actions/checkout@v2
+  #       uses: actions/checkout@v3
   #     - name: Log in to GitHub Packages
   #       run: echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
   #       env:
