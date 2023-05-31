@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from fastapi import APIRouter, Depends, HTTPException, Path, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -40,7 +38,7 @@ async def read_my_summaries(
 
 
 @router.get("/{id}", response_model=UserSchema)
-async def read_user(id: UUID = Path(...), db: AsyncSession = Depends(get_db)):
+async def read_user(id: int = Path(...), db: AsyncSession = Depends(get_db)):
     user = await crud_user.get(user_id=id, db=db)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -55,7 +53,7 @@ async def read_all_users(db: AsyncSession = Depends(get_db)):
 @router.put("/{id}", response_model=UserSchema)
 async def update_user(
     payload: UserUpdatePayloadSchema,
-    id: UUID = Path(...),
+    id: int = Path(...),
     current_user: UserInDBSchema = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -71,7 +69,7 @@ async def update_user(
 
 @router.delete("/{id}", response_model=UserSchema)
 async def delete_user(
-    id: UUID = Path(...),
+    id: int = Path(...),
     current_user: UserInDBSchema = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db),
 ):

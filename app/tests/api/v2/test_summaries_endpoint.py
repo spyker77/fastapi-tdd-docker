@@ -5,7 +5,7 @@ from app.config import get_settings
 from app.main import app
 from app.tests.conftest import TEST_USER
 
-TEST_UUID = "0d1cce70-f99c-42bb-a96c-ef8e9b540e67"
+TEST_ID = "0987654321"
 
 settings = get_settings()
 
@@ -122,7 +122,7 @@ async def test_read_summary(test_client_with_db, monkeypatch):
 @pytest.mark.asyncio
 async def test_read_summary_incorrect_id(test_client_with_db):
     async with test_client_with_db as client:
-        response = await client.get(url=app.url_path_for("read_summary", id=TEST_UUID))
+        response = await client.get(url=app.url_path_for("read_summary", id=TEST_ID))
         assert response.status_code == 404
         assert response.json()["detail"] == "Summary not found"
 
@@ -217,13 +217,13 @@ async def test_update_summary(test_client_with_db, monkeypatch):
     "summary_id, payload, status_code, detail",
     [
         [
-            TEST_UUID,
+            TEST_ID,
             {"url": "https://foo.bar"},
             404,
             "Summary not found",
         ],
         [
-            TEST_UUID,
+            TEST_ID,
             {},
             422,
             [
@@ -235,7 +235,7 @@ async def test_update_summary(test_client_with_db, monkeypatch):
             ],
         ],
         [
-            TEST_UUID,
+            TEST_ID,
             {"url": "foo.bar"},
             422,
             [
@@ -285,13 +285,13 @@ async def test_update_summary_invalid_url(test_client_with_db):
         issued_test_token = tokens["access_token"]
 
         unauthorized_response = await client.put(
-            url=app.url_path_for("update_summary", id=TEST_UUID),
+            url=app.url_path_for("update_summary", id=TEST_ID),
             json={"url": "invalid://url"},
         )
         assert unauthorized_response.status_code == 401
 
         authorized_response = await client.put(
-            url=app.url_path_for("update_summary", id=TEST_UUID),
+            url=app.url_path_for("update_summary", id=TEST_ID),
             json={"url": "invalid://url"},
             headers={"Authorization": f"Bearer {issued_test_token}"},
         )
@@ -451,16 +451,16 @@ async def test_delete_summary_incorrect_id(test_client_with_db):
         tokens = response.json()
         issued_test_token = tokens["access_token"]
 
-        unauthorized_response = await client.delete(url=app.url_path_for("delete_summary", id=TEST_UUID))
+        unauthorized_response = await client.delete(url=app.url_path_for("delete_summary", id=TEST_ID))
         assert unauthorized_response.status_code == 401
 
         authorized_response = await client.delete(
-            url=app.url_path_for("delete_summary", id=TEST_UUID),
+            url=app.url_path_for("delete_summary", id=TEST_ID),
             headers={"Authorization": f"Bearer {issued_test_token}"},
         )
 
         authorized_response = await client.delete(
-            url=app.url_path_for("delete_summary", id=TEST_UUID),
+            url=app.url_path_for("delete_summary", id=TEST_ID),
             headers={"Authorization": f"Bearer {issued_test_token}"},
         )
         assert authorized_response.status_code == 404

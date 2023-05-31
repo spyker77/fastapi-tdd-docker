@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from fastapi import APIRouter, Depends, HTTPException, Path, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -30,7 +28,7 @@ async def create_summary(
 
 
 @router.get("/{id}", response_model=SummarySchema)
-async def read_summary(id: UUID = Path(...), db: AsyncSession = Depends(get_db)):
+async def read_summary(id: int = Path(...), db: AsyncSession = Depends(get_db)):
     summary = await crud_summary.get(summary_id=id, db=db)
     if not summary:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Summary not found")
@@ -45,7 +43,7 @@ async def read_all_summaries(db: AsyncSession = Depends(get_db)):
 @router.put("/{id}", response_model=SummarySchema)
 async def update_summary(
     payload: SummaryPayloadSchema,
-    id: UUID = Path(...),
+    id: int = Path(...),
     current_user: UserInDBSchema = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -65,7 +63,7 @@ async def update_summary(
 
 @router.delete("/{id}", response_model=SummarySchema)
 async def delete_summary(
-    id: UUID = Path(...),
+    id: int = Path(...),
     current_user: UserInDBSchema = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db),
 ):

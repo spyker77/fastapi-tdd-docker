@@ -1,14 +1,13 @@
 from typing import List, TypeAlias
-from uuid import UUID
 
 from pydantic import AnyHttpUrl, BaseModel
 
 
 class SummarySchema(BaseModel):
-    id: UUID
+    id: int
     url: AnyHttpUrl
     summary: str
-    user_id: UUID
+    user_id: int
 
     class Config:
         orm_mode = True

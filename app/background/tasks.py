@@ -1,5 +1,4 @@
 import asyncio
-from uuid import UUID
 
 import nltk
 from newspaper import Article
@@ -20,13 +19,13 @@ except LookupError:
 
 
 @celery.task(name="celery_generate_summary")
-def celery_generate_summary(summary_id: UUID, url: AnyHttpUrl) -> None:
+def celery_generate_summary(summary_id: int, url: AnyHttpUrl) -> None:
     article = Article(url)
     article.download()
     article.parse()
     article.nlp()
 
-    async def update_summary(summary_id: UUID, summary: str) -> None:
+    async def update_summary(summary_id: int, summary: str) -> None:
         async with async_session() as db:
             result = await db.execute(select(Summary).where(Summary.id == summary_id))
             summary_to_update = result.scalar_one()

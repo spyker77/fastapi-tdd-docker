@@ -22,7 +22,7 @@ RUN apt-get update && \
 COPY poetry.lock pyproject.toml ./
 RUN pip install --upgrade pip && \
     curl -sSL https://install.python-poetry.org | python3 - && \
-    poetry export -f requirements.txt --output requirements.txt --dev --without-hashes && \
+    poetry export -f requirements.txt --output requirements.txt --with dev --without-hashes && \
     pip install -r requirements.txt
 
 # Add app and chown all the files to the app user

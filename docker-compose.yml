@@ -8,11 +8,12 @@ services:
     image: rabbitmq:3.11-management
 
   db:
-    image: postgres:15.2-alpine
+    image: mysql:8.0
     environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=dev
     volumes:
-      - postgresql_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
 
   web:
     build: .
@@ -20,7 +21,7 @@ services:
       - ENVIRONMENT=dev
       - TESTING=0
       - SECRET_KEY=697be90749590b29ad92e0f8b5a0e7d11cf895403af9858ba7813bd51aac5795
-      - DATABASE_URL=postgresql+psycopg://postgres@db/postgres
+      - DATABASE_URL=mysql+asyncmy://root@db/dev
       - DATABASE_TEST_URL=sqlite+aiosqlite://
       - BROKER_URL=amqp://rabbitmq
       - RESULT_BACKEND=redis://redis
@@ -31,8 +32,7 @@ services:
     depends_on:
       - redis
       - rabbitmq
-      - db
-    command: gunicorn -b 0.0.0.0 -k uvicorn.workers.UvicornWorker app.main:app
+    command: ./scripts/wait-for-it.sh -t 30 db:3306 -- gunicorn -b 0.0.0.0 -k uvicorn.workers.UvicornWorker app.main:app
 
   worker:
     build: .
@@ -40,7 +40,7 @@ services:
       - ENVIRONMENT=dev
       - TESTING=0
       - SECRET_KEY=697be90749590b29ad92e0f8b5a0e7d11cf895403af9858ba7813bd51aac5795
-      - DATABASE_URL=postgresql+psycopg://postgres@db/postgres
+      - DATABASE_URL=mysql+asyncmy://root@db/dev
       - DATABASE_TEST_URL=sqlite+aiosqlite://
       - BROKER_URL=amqp://rabbitmq
       - RESULT_BACKEND=redis://redis
@@ -48,7 +48,7 @@ services:
       - .:/code
     depends_on:
       - web
-    command: ./scripts/wait-for-it.sh -t 5 amqp://rabbitmq -- celery -A app.background.worker worker --without-heartbeat --without-gossip --without-mingle -l INFO
+    command: ./scripts/wait-for-it.sh -t 10 rabbitmq:5672 -- celery -A app.background.worker worker --without-heartbeat --without-gossip --without-mingle -l INFO
 
 volumes:
-  postgresql_data: null
+  mysql_data: null

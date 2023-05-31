@@ -1,5 +1,4 @@
 from typing import Dict, List, Optional
-from uuid import UUID
 
 from fastapi import Depends
 from sqlalchemy import delete, select, update
@@ -10,7 +9,7 @@ from app.models import Summary
 from app.schemas.summary import SummaryPayloadSchema
 
 
-async def post(user_id: UUID, payload: SummaryPayloadSchema, db: AsyncSession = Depends(get_db)) -> Summary:
+async def post(user_id: int, payload: SummaryPayloadSchema, db: AsyncSession = Depends(get_db)) -> Summary:
     summary = Summary(url=payload.url, summary="", user_id=user_id)
     db.add(summary)
     await db.commit()
@@ -18,7 +17,7 @@ async def post(user_id: UUID, payload: SummaryPayloadSchema, db: AsyncSession = 
     return summary
 
 
-async def get(summary_id: UUID, db: AsyncSession = Depends(get_db)) -> Optional[Dict]:
+async def get(summary_id: int, db: AsyncSession = Depends(get_db)) -> Optional[Dict]:
     result = await db.execute(select(Summary).filter_by(id=summary_id))
     summary = result.scalar()
     if summary:
@@ -32,7 +31,7 @@ async def get_all(db: AsyncSession = Depends(get_db)) -> List[Dict]:
     return [summary for summary in summaries if summary]
 
 
-async def put(summary_id: UUID, payload: SummaryPayloadSchema, db: AsyncSession = Depends(get_db)) -> Dict:
+async def put(summary_id: int, payload: SummaryPayloadSchema, db: AsyncSession = Depends(get_db)) -> Dict:
     new_data = payload.dict(exclude_unset=True, exclude_defaults=True, exclude_none=True)
     await db.execute(update(Summary).where(Summary.id == summary_id).values(**new_data))
     await db.commit()
@@ -42,6 +41,6 @@ async def put(summary_id: UUID, payload: SummaryPayloadSchema, db: AsyncSession 
     return updated_summary
 
 
-async def remove(summary_id: UUID, db: AsyncSession = Depends(get_db)) -> None:
+async def remove(summary_id: int, db: AsyncSession = Depends(get_db)) -> None:
     await db.execute(delete(Summary).where(Summary.id == summary_id))
     await db.commit()

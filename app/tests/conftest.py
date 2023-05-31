@@ -2,7 +2,6 @@ from contextlib import asynccontextmanager
 
 import pytest
 from httpx import AsyncClient
-from psycopg import AsyncConnection
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.config import Settings, get_settings
@@ -33,7 +32,7 @@ async_session = async_sessionmaker(async_engine, expire_on_commit=False)
 
 
 @asynccontextmanager
-async def setup_database() -> AsyncConnection:
+async def setup_database():
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     try:

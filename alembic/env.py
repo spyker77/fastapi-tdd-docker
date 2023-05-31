@@ -16,7 +16,15 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # add the DATABASE_URL to the config instead of defining this in the alembic.ini
-config.set_main_option("sqlalchemy.url", os.environ["DATABASE_URL"])
+# and switch to sync driver as Alembic does not natively support asynchronous drivers
+database_url = os.environ["DATABASE_URL"]
+
+if "aiomysql" in database_url:
+    database_url = database_url.replace("+aiomysql", "+pymysql")
+elif "asyncmy" in database_url:
+    database_url = database_url.replace("+asyncmy", "+pymysql")
+
+config.set_main_option("sqlalchemy.url", database_url)
 
 # add your model's MetaData object here
 # for 'autogenerate' support

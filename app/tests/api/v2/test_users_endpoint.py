@@ -5,7 +5,7 @@ from app.config import get_settings
 from app.main import app
 from app.tests.conftest import TEST_USER
 
-TEST_UUID = "64cabc63-7b60-46b6-89de-4405265ff51b"
+TEST_ID = "1234567890"
 
 settings = get_settings()
 
@@ -191,7 +191,7 @@ async def test_read_user(test_client_with_db):
 @pytest.mark.asyncio
 async def test_read_user_incorrect_id(test_client_with_db):
     async with test_client_with_db as client:
-        response = await client.get(url=app.url_path_for("read_user", id=TEST_UUID))
+        response = await client.get(url=app.url_path_for("read_user", id=TEST_ID))
         assert response.status_code == 404
         assert response.json()["detail"] == "User not found"
 
@@ -251,7 +251,7 @@ async def test_update_user(test_client_with_db):
     "user_id, payload, status_code, detail",
     [
         [
-            TEST_UUID,
+            TEST_ID,
             {
                 "username": "update_test_user",
                 "email": "update_test_user@mail.com",
@@ -262,7 +262,7 @@ async def test_update_user(test_client_with_db):
             "User not found",
         ],
         [
-            TEST_UUID,
+            TEST_ID,
             {"email": "updated_email"},
             422,
             [
@@ -395,11 +395,11 @@ async def test_delete_user_incorrect_id(test_client_with_db):
         tokens = response.json()
         issued_test_token = tokens["access_token"]
 
-        unauthorized_response = await client.delete(url=app.url_path_for("delete_user", id=TEST_UUID))
+        unauthorized_response = await client.delete(url=app.url_path_for("delete_user", id=TEST_ID))
         assert unauthorized_response.status_code == 401
 
         authorized_response = await client.delete(
-            url=app.url_path_for("delete_user", id=TEST_UUID),
+            url=app.url_path_for("delete_user", id=TEST_ID),
             headers={"Authorization": f"Bearer {issued_test_token}"},
         )
         assert authorized_response.status_code == 404

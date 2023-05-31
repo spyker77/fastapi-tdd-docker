@@ -1,11 +1,10 @@
 from typing import List, Optional, TypeAlias
-from uuid import UUID
 
 from pydantic import BaseModel, EmailStr
 
 
 class UserSchema(BaseModel):
-    id: UUID
+    id: int
     username: str
     email: EmailStr
     full_name: Optional[str] = None
