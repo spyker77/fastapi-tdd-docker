@@ -15,6 +15,8 @@ jobs:
         uses: actions/checkout@v3
       - name: Build and run containers
         run: docker-compose up -d
+      - name: Wait for database
+        run: sleep 30
       - name: Apply database migrations
         run: docker-compose exec -T web alembic upgrade head
       - name: Check for pending database schema upgrade
