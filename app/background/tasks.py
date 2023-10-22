@@ -1,29 +1,28 @@
 import asyncio
 
-import nltk
 from newspaper import Article
 from pydantic import AnyHttpUrl
 from sqlalchemy import select
 
-from app.database import async_session, get_settings
+from app.config import get_settings
+from app.database import async_session
 from app.models import Summary
+from app.summarization.summarizer import Summarizer
 
 from .worker import celery
 
 settings = get_settings()
 
-try:
-    nltk.data.find("tokenizers/punkt")
-except LookupError:
-    nltk.download("punkt")
-
 
 @celery.task(name="celery_generate_summary")
 def celery_generate_summary(summary_id: int, url: AnyHttpUrl) -> None:
+    loop = asyncio.get_event_loop()
+
     article = Article(url)
     article.download()
     article.parse()
-    article.nlp()
+
+    summary = Summarizer.summarize(article.text, settings.SUMMARIZER_MODEL)
 
     async def update_summary(summary_id: int, summary: str) -> None:
         async with async_session() as db:
@@ -32,4 +31,4 @@ def celery_generate_summary(summary_id: int, url: AnyHttpUrl) -> None:
             summary_to_update.summary = summary
             await db.commit()
 
-    asyncio.run(update_summary(summary_id, article.summary))
+    loop.run_until_complete(update_summary(summary_id, summary))

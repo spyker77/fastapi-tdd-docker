@@ -12,8 +12,6 @@ services:
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
       - MYSQL_DATABASE=dev
-    volumes:
-      - mysql_data:/var/lib/mysql
 
   web:
     build: .
@@ -25,8 +23,10 @@ services:
       - DATABASE_TEST_URL=sqlite+aiosqlite://
       - BROKER_URL=amqp://rabbitmq
       - RESULT_BACKEND=redis://redis
+      - SUMMARIZER_MODEL=IlyaGusev/mbart_ru_sum_gazeta
     volumes:
-      - .:/code
+      - .:/home/app
+      - bart-model:/bart-model
     ports:
       - "8000:8000"
     depends_on:
@@ -44,11 +44,9 @@ services:
       - DATABASE_TEST_URL=sqlite+aiosqlite://
       - BROKER_URL=amqp://rabbitmq
       - RESULT_BACKEND=redis://redis
+      - SUMMARIZER_MODEL=IlyaGusev/mbart_ru_sum_gazeta
     volumes:
-      - .:/code
+      - .:/home/app
     depends_on:
       - web
     command: ./scripts/wait-for-it.sh -t 10 rabbitmq:5672 -- celery -A app.background.worker worker --without-heartbeat --without-gossip --without-mingle -l INFO
-
-volumes:
-  mysql_data: null
