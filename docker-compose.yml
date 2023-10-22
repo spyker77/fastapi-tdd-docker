@@ -26,7 +26,6 @@ services:
       - SUMMARIZER_MODEL=IlyaGusev/mbart_ru_sum_gazeta
     volumes:
       - .:/home/app
-      - bart-model:/bart-model
     ports:
       - "8000:8000"
     depends_on:
