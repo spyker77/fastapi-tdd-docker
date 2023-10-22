@@ -22,7 +22,7 @@ RUN apt-get update && \
 COPY poetry.lock pyproject.toml ./
 RUN pip install --upgrade pip && \
     curl -sSL https://install.python-poetry.org | python3 - && \
-    poetry export -f requirements.txt --output requirements.txt --without-hashes && \
+    poetry export -f requirements.txt --output requirements.txt --with dev --without-hashes && \
     pip wheel --no-cache-dir --no-deps --wheel-dir /code/wheels -r requirements.txt
 
 
