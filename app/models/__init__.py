@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, func
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -27,7 +27,7 @@ class Summary(AbstractBaseModel):
     __tablename__ = "summaries"
 
     url: Mapped[str] = mapped_column(String(255), index=True)
-    summary: Mapped[str] = mapped_column(String(255))
+    summary: Mapped[str] = mapped_column(Text)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
 
     user: Mapped["User"] = relationship(back_populates="summaries")
