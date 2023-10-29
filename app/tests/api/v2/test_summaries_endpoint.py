@@ -38,7 +38,7 @@ async def test_create_summary(test_client_with_db, monkeypatch):
             headers={"Authorization": f"Bearer {issued_test_token}"},
         )
         assert authorized_response.status_code == 201
-        assert authorized_response.json()["url"] == "https://foo.bar"
+        assert authorized_response.json()["url"] == "https://foo.bar/"
 
 
 @pytest.mark.asyncio
@@ -65,9 +65,11 @@ async def test_create_summaries_invalid_json(test_client_with_db):
         )
         assert authorized_response.status_code == 422
         assert authorized_response.json()["detail"][0] == {
+            "type": "missing",
             "loc": ["body", "url"],
-            "msg": "field required",
-            "type": "value_error.missing",
+            "msg": "Field required",
+            "input": {},
+            "url": "https://errors.pydantic.dev/2.4/v/missing",
         }
 
         authorized_response = await client.post(
@@ -76,7 +78,7 @@ async def test_create_summaries_invalid_json(test_client_with_db):
             headers={"Authorization": f"Bearer {issued_test_token}"},
         )
         assert authorized_response.status_code == 422
-        assert authorized_response.json()["detail"][0]["msg"] == "URL scheme not permitted"
+        assert authorized_response.json()["detail"][0]["msg"] == "URL scheme should be 'http' or 'https'"
 
 
 @pytest.mark.asyncio
@@ -113,7 +115,7 @@ async def test_read_summary(test_client_with_db, monkeypatch):
         assert response.status_code == 200
         assert response.json() == {
             "id": summary["id"],
-            "url": "https://foo.bar",
+            "url": "https://foo.bar/",
             "summary": "",
             "user_id": summary["user_id"],
         }
@@ -206,7 +208,7 @@ async def test_update_summary(test_client_with_db, monkeypatch):
         assert authorized_response.status_code == 200
         assert authorized_response.json() == {
             "id": summary["id"],
-            "url": "https://updated.bar",
+            "url": "https://updated.bar/",
             "summary": "",
             "user_id": summary["user_id"],
         }
@@ -228,10 +230,12 @@ async def test_update_summary(test_client_with_db, monkeypatch):
             422,
             [
                 {
+                    "type": "missing",
                     "loc": ["body", "url"],
-                    "msg": "field required",
-                    "type": "value_error.missing",
-                },
+                    "msg": "Field required",
+                    "input": {},
+                    "url": "https://errors.pydantic.dev/2.4/v/missing",
+                }
             ],
         ],
         [
@@ -240,10 +244,13 @@ async def test_update_summary(test_client_with_db, monkeypatch):
             422,
             [
                 {
+                    "type": "url_parsing",
                     "loc": ["body", "url"],
-                    "msg": "invalid or missing URL scheme",
-                    "type": "value_error.url.scheme",
-                },
+                    "msg": "Input should be a valid URL, relative URL without a base",
+                    "input": "foo.bar",
+                    "ctx": {"error": "relative URL without a base"},
+                    "url": "https://errors.pydantic.dev/2.4/v/url_parsing",
+                }
             ],
         ],
     ],
@@ -296,7 +303,7 @@ async def test_update_summary_invalid_url(test_client_with_db):
             headers={"Authorization": f"Bearer {issued_test_token}"},
         )
         assert authorized_response.status_code == 422
-        assert authorized_response.json()["detail"][0]["msg"] == "URL scheme not permitted"
+        assert authorized_response.json()["detail"][0]["msg"] == "URL scheme should be 'http' or 'https'"
 
 
 @pytest.mark.asyncio
@@ -387,7 +394,7 @@ async def test_delete_summary(test_client_with_db, monkeypatch):
         assert authorized_response.status_code == 200
         assert authorized_response.json() == {
             "id": summary["id"],
-            "url": "https://foo.bar",
+            "url": "https://foo.bar/",
             "summary": "",
             "user_id": summary["user_id"],
         }

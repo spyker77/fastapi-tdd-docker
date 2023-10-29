@@ -7,7 +7,7 @@ This is the implementation of [the course](https://testdriven.io/courses/tdd-fas
 - Python image updated to the latest version 3.11
 - Dependencies updated to the latest version at the moment
 - CORSMiddleware used to manually control allowed origins
-- Venv replaced with poetry
+- Venv replaced with PDM
 - Added versions of the API
 - Refactored the code
 - Gunicorn added to manage the uvicorn

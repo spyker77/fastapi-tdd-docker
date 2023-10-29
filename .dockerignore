@@ -2,10 +2,14 @@ __pycache__
 *.log
 *.pot
 *.pyc
+.venv
 .vscode
 .DS_Store
 .coverage
+.pdm-python
+.pdm-build
 .pytest_cache
 .mypy_cache
 .ruff_cache
+.cache
 htmlcov

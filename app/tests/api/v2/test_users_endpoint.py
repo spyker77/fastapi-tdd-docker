@@ -34,9 +34,11 @@ async def test_create_user(test_client_with_db):
             },
             422,
             {
+                "type": "missing",
                 "loc": ["body", "username"],
-                "msg": "field required",
-                "type": "value_error.missing",
+                "msg": "Field required",
+                "input": {"email": "missing@mail.com", "full_name": "Missing Field", "password": "secret"},
+                "url": "https://errors.pydantic.dev/2.4/v/missing",
             },
         ],
         [
@@ -47,9 +49,11 @@ async def test_create_user(test_client_with_db):
             },
             422,
             {
+                "type": "missing",
                 "loc": ["body", "email"],
-                "msg": "field required",
-                "type": "value_error.missing",
+                "msg": "Field required",
+                "input": {"username": "missing", "full_name": "Missing Field", "password": "secret"},
+                "url": "https://errors.pydantic.dev/2.4/v/missing",
             },
         ],
         [
@@ -60,9 +64,11 @@ async def test_create_user(test_client_with_db):
             },
             422,
             {
+                "type": "missing",
                 "loc": ["body", "password"],
-                "msg": "field required",
-                "type": "value_error.missing",
+                "msg": "Field required",
+                "input": {"username": "missing", "email": "missing@mail.com", "full_name": "Missing Field"},
+                "url": "https://errors.pydantic.dev/2.4/v/missing",
             },
         ],
     ],
@@ -80,9 +86,27 @@ async def test_create_user_invalid_json(test_client_with_db):
         response = await client.post(url=app.url_path_for("create_user"), json={})
         assert response.status_code == 422
         assert response.json()["detail"] == [
-            {"loc": ["body", "username"], "msg": "field required", "type": "value_error.missing"},
-            {"loc": ["body", "email"], "msg": "field required", "type": "value_error.missing"},
-            {"loc": ["body", "password"], "msg": "field required", "type": "value_error.missing"},
+            {
+                "type": "missing",
+                "loc": ["body", "username"],
+                "msg": "Field required",
+                "input": {},
+                "url": "https://errors.pydantic.dev/2.4/v/missing",
+            },
+            {
+                "type": "missing",
+                "loc": ["body", "email"],
+                "msg": "Field required",
+                "input": {},
+                "url": "https://errors.pydantic.dev/2.4/v/missing",
+            },
+            {
+                "type": "missing",
+                "loc": ["body", "password"],
+                "msg": "Field required",
+                "input": {},
+                "url": "https://errors.pydantic.dev/2.4/v/missing",
+            },
         ]
 
         response = await client.post(
@@ -91,9 +115,11 @@ async def test_create_user_invalid_json(test_client_with_db):
         )
         assert response.status_code == 422
         assert response.json()["detail"][0] == {
+            "type": "value_error",
             "loc": ["body", "email"],
-            "msg": "value is not a valid email address",
-            "type": "value_error.email",
+            "msg": "value is not a valid email address: The email address is not valid. It must have exactly one @-sign.",
+            "input": "testemail",
+            "ctx": {"reason": "The email address is not valid. It must have exactly one @-sign."},
         }
 
 
@@ -267,9 +293,11 @@ async def test_update_user(test_client_with_db):
             422,
             [
                 {
+                    "type": "value_error",
                     "loc": ["body", "email"],
-                    "msg": "value is not a valid email address",
-                    "type": "value_error.email",
+                    "msg": "value is not a valid email address: The email address is not valid. It must have exactly one @-sign.",
+                    "input": "updated_email",
+                    "ctx": {"reason": "The email address is not valid. It must have exactly one @-sign."},
                 }
             ],
         ],

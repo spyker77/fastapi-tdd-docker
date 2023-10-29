@@ -23,7 +23,7 @@ async def create_summary(
     db: AsyncSession = Depends(get_db),
 ):
     summary = await crud_summary.post(user_id=current_user.id, payload=payload, db=db)
-    celery_generate_summary.delay(summary.id, payload.url)
+    celery_generate_summary.delay(summary.id, str(payload.url))
     return summary
 
 
@@ -53,7 +53,7 @@ async def update_summary(
     if user := await crud_user.get(user_id=current_user.id, db=db):
         if (summary.user_id == current_user.id) or user.is_superuser:
             updated = await crud_summary.put(summary_id=id, payload=payload, db=db)
-            celery_generate_summary.delay(id, payload.url)
+            celery_generate_summary.delay(id, str(payload.url))
             return updated
         else:
             raise HTTPException(

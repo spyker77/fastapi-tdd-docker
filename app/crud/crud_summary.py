@@ -10,7 +10,7 @@ from app.schemas.summary import SummaryPayloadSchema
 
 
 async def post(user_id: int, payload: SummaryPayloadSchema, db: AsyncSession = Depends(get_db)) -> Summary:
-    summary = Summary(url=payload.url, summary="", user_id=user_id)
+    summary = Summary(url=str(payload.url), summary="", user_id=user_id)
     db.add(summary)
     await db.commit()
     await db.refresh(summary)
@@ -32,7 +32,8 @@ async def get_all(db: AsyncSession = Depends(get_db)) -> List[Dict]:
 
 
 async def put(summary_id: int, payload: SummaryPayloadSchema, db: AsyncSession = Depends(get_db)) -> Dict:
-    new_data = payload.dict(exclude_unset=True, exclude_defaults=True, exclude_none=True)
+    new_data = payload.model_dump(exclude_unset=True, exclude_defaults=True, exclude_none=True)
+    new_data["url"] = str(new_data["url"])
     await db.execute(update(Summary).where(Summary.id == summary_id).values(**new_data))
     await db.commit()
 

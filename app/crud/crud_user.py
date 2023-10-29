@@ -46,7 +46,7 @@ async def get_my_summaries(user_id: int, db: AsyncSession = Depends(get_db)) -> 
 
 
 async def put(user_id: int, payload: UserUpdatePayloadSchema, db: AsyncSession = Depends(get_db)) -> Dict:
-    new_data = payload.dict(exclude_unset=True, exclude_defaults=True, exclude_none=True)
+    new_data = payload.model_dump(exclude_unset=True, exclude_defaults=True, exclude_none=True)
     if "password" in new_data:
         new_data["hashed_password"] = get_password_hash(new_data["password"])
         del new_data["password"]

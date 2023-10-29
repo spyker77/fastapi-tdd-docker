@@ -34,7 +34,7 @@ def verify_password(plain_password, hashed_password):
 async def get_user(username: str, db: AsyncSession):
     result = await db.execute(select(User).where(User.username == username))
     user = result.scalars().first()
-    return UserInDBSchema.from_orm(user) if user else None
+    return UserInDBSchema.model_validate(user) if user else None
 
 
 async def authenticate_user(username: str, password: str, db: AsyncSession = Depends(get_db)):

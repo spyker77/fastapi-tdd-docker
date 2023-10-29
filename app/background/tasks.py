@@ -1,7 +1,6 @@
 import asyncio
 
 from newspaper import Article
-from pydantic import AnyHttpUrl
 from sqlalchemy import select
 
 from app.config import get_settings
@@ -15,7 +14,7 @@ settings = get_settings()
 
 
 @celery.task(name="celery_generate_summary")
-def celery_generate_summary(summary_id: int, url: AnyHttpUrl) -> None:
+def celery_generate_summary(summary_id: int, url: str) -> None:
     loop = asyncio.get_event_loop()
 
     article = Article(url)

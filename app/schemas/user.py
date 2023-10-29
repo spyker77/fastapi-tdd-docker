@@ -10,7 +10,7 @@ class UserSchema(BaseModel):
     full_name: Optional[str] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 UserSchemaList: TypeAlias = List[UserSchema]
@@ -22,7 +22,7 @@ class UserInDBSchema(UserSchema):
     hashed_password: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class UserPayloadSchema(BaseModel):
