@@ -22,11 +22,11 @@ jobs:
       - name: Check for pending database schema upgrade
         run: docker-compose exec -T web alembic check
       - name: Check code linting with ruff
-        run: docker-compose exec -T web ruff check .
+        run: docker-compose exec -T -u root web ruff check .
       - name: Check code formatting with black
-        run: docker-compose exec -T web black --check .
+        run: docker-compose exec -T -u root web black --check .
       - name: Test code with pytest
-        run: docker-compose exec -T web pytest -n auto .
+        run: docker-compose exec -T -u root web pytest -n auto .
 
   build-and-deploy:
     name: Build Docker Images and Deploy to Heroku
