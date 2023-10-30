@@ -27,6 +27,8 @@ jobs:
         run: docker-compose exec -T -u root web black --check .
       - name: Test code with pytest
         run: docker-compose exec -T -u root web pytest -n auto .
+      - name: Cleanup
+        run: docker-compose down -v
 
   build-and-deploy:
     name: Build Docker Images and Deploy to Heroku
