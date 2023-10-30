@@ -39,6 +39,9 @@ jobs:
       HEROKU_REGISTRY_WEB_IMAGE: registry.heroku.com/${HEROKU_APP_NAME}/web
       HEROKU_REGISTRY_WORKER_IMAGE: registry.heroku.com/${HEROKU_APP_NAME}/worker
     steps:
+      - name: Delete the tools folder to free up space for CUDA
+        run: rm -rf /opt/hostedtoolcache
+        
       - name: Checkout
         uses: actions/checkout@v4
       - name: Log in to GitHub Packages
