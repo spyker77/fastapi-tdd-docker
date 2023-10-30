@@ -36,8 +36,7 @@ jobs:
     needs: [test]
     strategy:
       matrix:
-        image: [web, worker]
-
+        image: [WEB, WORKER]
     env:
       HEROKU_APP_NAME: fastapi-tdd-docker-spyker77
       HEROKU_REGISTRY_WEB_IMAGE: registry.heroku.com/${HEROKU_APP_NAME}/web
@@ -45,7 +44,6 @@ jobs:
     steps:
       - name: Delete the tools folder to free up space for CUDA
         run: rm -rf /opt/hostedtoolcache
-
       - name: Checkout
         uses: actions/checkout@v4
       - name: Log in to GitHub Packages
@@ -59,26 +57,28 @@ jobs:
           docker pull ${{ env['${{ matrix.image }}_IMAGE'] }}-final:latest || true
       - name: Build images
         run: |
+          # A hack to convert matrix.image to lowercase for parallel runs
+          IMAGE_NAME=$(echo "${{ matrix.image }}" | tr '[:upper:]' '[:lower:]')
           # Build Builder Stage
           docker build \
             --target builder \
             --cache-from ${{ env['${{ matrix.image }}_IMAGE'] }}-builder:latest \
             --tag ${{ env['${{ matrix.image }}_IMAGE'] }}-builder:latest \
-            --file ./Dockerfile.${{ matrix.image }} \
+            --file ./Dockerfile.$IMAGE_NAME \
             "."
           # Build CUDA-Devel Stage
           docker build \
             --target cuda_devel \
             --cache-from ${{ env['${{ matrix.image }}_IMAGE'] }}-cuda-devel:latest \
-            --tag ${{ env['${{ matrix.image }}_IMAGE'] }}-cuda-devel:latest \
-            --file ./Dockerfile.${{ matrix.image }} \
+            --tag ${{ env['${{ matrix.image }_IMAGE'] }}-cuda-devel:latest \
+            --file ./Dockerfile.$IMAGE_NAME \
             "."
           # Build Final Stage
           docker build \
             --cache-from ${{ env['${{ matrix.image }}_IMAGE'] }}-final:latest \
             --tag ${{ env['${{ matrix.image }}_IMAGE'] }}-final:latest \
-            --tag ${{ env['HEROKU_REGISTRY_${{ matrix.image | uppercase }}_IMAGE'] }}:latest \
-            --file ./Dockerfile.${{ matrix.image }} \
+            --tag ${{ env['HEROKU_REGISTRY_${{ matrix.image }}_IMAGE'] }}:latest \
+            --file ./Dockerfile.$IMAGE_NAME \
             "."
       - name: Push images to the packages
         run: |
@@ -91,10 +91,10 @@ jobs:
       #   env:
       #     HEROKU_AUTH_TOKEN: ${{ secrets.HEROKU_AUTH_TOKEN }}
       # - name: Push images to the registry
-      #   run: docker push ${{ env['HEROKU_REGISTRY_${{ matrix.image | uppercase }}_IMAGE'] }}:latest
+      #   run: docker push ${{ env['HEROKU_REGISTRY_${{ matrix.image }}_IMAGE'] }}:latest
       # - name: Set environment variables
       #   run: |
-      #     echo "HEROKU_REGISTRY_${{ matrix.image | uppercase }}_IMAGE=${{ env['HEROKU_REGISTRY_${{ matrix.image | uppercase }}_IMAGE'] }}" >> $GITHUB_ENV
+      #     echo "HEROKU_REGISTRY_${{ matrix.image }}_IMAGE=${{ env['HEROKU_REGISTRY_${{ matrix.image }}_IMAGE'] }}" >> $GITHUB_ENV
       #     echo "HEROKU_AUTH_TOKEN=${{ secrets.HEROKU_AUTH_TOKEN }}" >> $GITHUB_ENV
       # - name: Release
       #   run: |
