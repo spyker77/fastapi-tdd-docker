@@ -40,9 +40,11 @@ jobs:
           - image_name: "WEB"
             docker_file: "Dockerfile.web"
             image_env: "WEB_IMAGE"
+            registry_image_env: "HEROKU_REGISTRY_WEB_IMAGE"
           - image_name: "WORKER"
             docker_file: "Dockerfile.worker"
             image_env: "WORKER_IMAGE"
+            registry_image_env: "HEROKU_REGISTRY_WORKER_IMAGE"
     env:
       HEROKU_APP_NAME: fastapi-tdd-docker-spyker77
       HEROKU_REGISTRY_WEB_IMAGE: registry.heroku.com/${HEROKU_APP_NAME}/web
@@ -81,7 +83,7 @@ jobs:
           docker build \
             --cache-from ${{ env[matrix.image_env] }}-final:latest \
             --tag ${{ env[matrix.image_env] }}-final:latest \
-            --tag ${{ format('HEROKU_REGISTRY_{0}_IMAGE', matrix.image_name) }}:latest \
+            --tag ${{ env[matrix.registry_image_env] }}:latest \
             --file ./${{ matrix.docker_file }} \
             "."
       - name: Push images to the packages
@@ -95,10 +97,10 @@ jobs:
       #   env:
       #     HEROKU_AUTH_TOKEN: ${{ secrets.HEROKU_AUTH_TOKEN }}
       # - name: Push images to the registry
-      #   run: docker push ${{ format('HEROKU_REGISTRY_{0}_IMAGE', matrix.image_name) }}:latest
+      #   run: docker push ${{ env[matrix.registry_image_env] }}:latest
       # - name: Set environment variables
       #   run: |
-      #     echo "HEROKU_REGISTRY_${{ matrix.image_name }}_IMAGE=${{ format('HEROKU_REGISTRY_{0}_IMAGE', matrix.image_name) }}" >> $GITHUB_ENV
+      #     echo "HEROKU_REGISTRY_${{ matrix.image_name }}_IMAGE=${{ env[matrix.registry_image_env] }}" >> $GITHUB_ENV
       #     echo "HEROKU_AUTH_TOKEN=${{ secrets.HEROKU_AUTH_TOKEN }}" >> $GITHUB_ENV
       # - name: Release
       #   run: |
