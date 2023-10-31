@@ -1,5 +1,6 @@
 import logging
-from typing import List
+from contextlib import asynccontextmanager
+from typing import AsyncContextManager, List
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,13 +17,14 @@ log = logging.getLogger("uvicorn")
 API_VERSIONS_ROUTERS = {"v2": api_router_v2}
 
 
-def create_application(api_versions: List[str] = ["v2"]) -> FastAPI:
+def create_application(api_versions: List[str] = ["v2"], lifespan: AsyncContextManager = None) -> FastAPI:
     application = FastAPI(
         title="Test-Driven Development with FastAPI and Docker",
         description="""Create a random user and then authorize to play around with options.
         Authorized users can create and read everything, but update and delete only their own entries.
         """,
         version="v2",
+        lifespan=lifespan,
     )
 
     application.add_middleware(
@@ -42,17 +44,16 @@ def create_application(api_versions: List[str] = ["v2"]) -> FastAPI:
     return application
 
 
-app = create_application()
-
-
-@app.on_event("startup")
-async def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     log.info("Starting up...")
     async with async_engine.begin():
         pass
 
+    yield
 
-@app.on_event("shutdown")
-async def shutdown_event():
     log.info("Shutting down...")
     await async_engine.dispose()
+
+
+app = create_application(lifespan=lifespan)

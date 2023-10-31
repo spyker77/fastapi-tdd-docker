@@ -1,19 +1,17 @@
 import logging
 
 import pytest
+from fastapi import FastAPI
 
-from app.main import shutdown_event, startup_event
-
-
-@pytest.mark.asyncio
-async def test_startup_event_logging(caplog):
-    caplog.set_level(logging.INFO)
-    await startup_event()
-    assert "Starting up..." in caplog.text
+from app.main import lifespan
 
 
 @pytest.mark.asyncio
-async def test_shutdown_event_logging(caplog):
+async def test_lifespan_logging(caplog):
     caplog.set_level(logging.INFO)
-    await shutdown_event()
+    app = FastAPI()
+
+    async with lifespan(app):
+        assert "Starting up..." in caplog.text
+
     assert "Shutting down..." in caplog.text

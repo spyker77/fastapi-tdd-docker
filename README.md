@@ -4,7 +4,6 @@
 
 This is the implementation of [the course](https://testdriven.io/courses/tdd-fastapi/) with the following changes so far:
 
-- Python image updated to the latest version 3.11
 - Dependencies updated to the latest version at the moment
 - CORSMiddleware used to manually control allowed origins
 - Venv replaced with PDM
@@ -16,7 +15,7 @@ This is the implementation of [the course](https://testdriven.io/courses/tdd-fas
 - Migrated to the Container registry from the Docker registry
 - Implemented authentication and authorization using OAuth2
 - Tortoise-ORM has been replaced by SQLAlchemy
-- Use the transformer model instead of NLP from Newspaper3k
+- Transformers model is used instead of NLP from Newspaper3k
 
 ## Quick Start
 
@@ -33,6 +32,12 @@ docker compose exec web alembic upgrade head
 ```
 
 Open in your browser: <http://localhost:8000/docs>
+
+Tests can be run with this command:
+
+```bash
+docker compose exec web pytest -n auto --cov
+```
 
 ## Note
 
