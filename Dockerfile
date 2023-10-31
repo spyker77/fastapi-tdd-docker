@@ -17,22 +17,12 @@ RUN apt-get update && \
     pip install --upgrade pip pdm && \
     rm -rf /var/lib/apt/lists/*
 
-# COPY PDM files and install python dependencies
+# Copy PDM files and install python dependencies
 COPY pyproject.toml pdm.lock README.md ./
 RUN mkdir __pypackages__ && pdm sync --dev
 
-########################
-# 2 STAGE - CUDA-DEVEL #
-########################
-
-# Pull NVIDIA CUDA devel image
-FROM nvidia/cuda:12.2.2-cudnn8-devel-ubuntu22.04 AS cuda_devel
-
-# Locate libcupti.so.12 and copy it to a known location
-RUN find /usr/local/cuda/lib64 -name 'libcupti.so.12' -exec cp {} /usr/local/cuda/lib64/libcupti.so.12 \;
-
 ###################
-# 3 STAGE - FINAL #
+# 2 STAGE - FINAL #
 ###################
 
 # Pull NVIDIA CUDA runtime image
@@ -48,21 +38,20 @@ ENV ENVIRONMENT=dev \
     DEBIAN_FRONTEND=noninteractive \
     LD_LIBRARY_PATH=/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
 
-# Create the app user and install system dependencies including Python
+# Create the app user and install system dependencies
 RUN addgroup --system app && \
     adduser --system --group app && \
     apt-get update && \
     apt-get install -y --no-install-recommends software-properties-common && \
-    # Add the deadsnakes PPA to get Python 3.11
+    # Add the deadsnakes PPA for Python 3.11
     add-apt-repository ppa:deadsnakes/ppa && \
+    # Add repos where to find the libcupti12 for CUDA
+    add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ mantic main multiverse" && \
     apt-get update && \
-    apt-get install -y python3.11 && \
+    apt-get install -y python3.11 libcupti12=12.0.* && \
     # Create a symlink for Python
     ln -s /usr/bin/python3.11 /usr/local/bin/python && \
-    rm -rf /var/lib/apt/lists/* 
-
-# Copy libcupti.so.12 from the devel stage to the runtime stage
-COPY --from=cuda_devel /usr/local/cuda/lib64/libcupti.so.12 /usr/local/cuda/lib64/libcupti.so.12
+    rm -rf /var/lib/apt/lists/*
 
 # Copy packages and executables from the builder stage
 COPY --from=builder /code/__pypackages__/3.11/lib /home/pkgs
