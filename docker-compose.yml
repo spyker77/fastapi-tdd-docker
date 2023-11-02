@@ -23,7 +23,9 @@ services:
       - DATABASE_TEST_URL=sqlite+aiosqlite://
       - BROKER_URL=amqp://rabbitmq
       - RESULT_BACKEND=redis://redis
-      - SUMMARIZER_MODEL=IlyaGusev/mbart_ru_sum_gazeta
+      - SUMMARIZER_MODEL_RU=IlyaGusev/mbart_ru_sum_gazeta
+      - SUMMARIZER_MODEL_EN=facebook/bart-large-cnn
+      - LANGUAGE_DETECTION_MODEL=papluca/xlm-roberta-base-language-detection
     volumes:
       - .:/home/app
     ports:
@@ -43,7 +45,9 @@ services:
       - DATABASE_TEST_URL=sqlite+aiosqlite://
       - BROKER_URL=amqp://rabbitmq
       - RESULT_BACKEND=redis://redis
-      - SUMMARIZER_MODEL=IlyaGusev/mbart_ru_sum_gazeta
+      - SUMMARIZER_MODEL_RU=IlyaGusev/mbart_ru_sum_gazeta
+      - SUMMARIZER_MODEL_EN=facebook/bart-large-cnn
+      - LANGUAGE_DETECTION_MODEL=papluca/xlm-roberta-base-language-detection
     volumes:
       - .:/home/app
     depends_on:

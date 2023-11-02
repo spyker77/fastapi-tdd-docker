@@ -68,6 +68,7 @@ dependencies = [
     "newspaper3k<1.0.0,>=0.2.8",
     "transformers[torch]>=4.34.1",
     "sentencepiece<1.0.0,>=0.1.99",
+    "protobuf>=4.24.4",
     "redis[hiredis]>=5.0.1",
     "sqlalchemy[aiosqlite,asyncmy,pymysql]<3.0.0,>=2.0.15",
     "alembic<2.0.0,>=1.10.3",

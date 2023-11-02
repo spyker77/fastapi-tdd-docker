@@ -27,7 +27,7 @@ This project is an implementation of [the course](https://testdriven.io/courses/
 - Migrated to the Container registry from the Docker registry
 - Implemented authentication and authorization using OAuth2
 - Tortoise-ORM has been replaced by SQLAlchemy
-- Transformers model is used instead of NLP from Newspaper3k
+- Transformers models are used instead of the NLP from Newspaper3k
 
 ## Prerequisites
 
@@ -81,7 +81,7 @@ docker compose exec web alembic upgrade head
 }
 ```
 
-5. This triggers the ML model to download, which may take a few minutes for the first run (in the current implementation). After that, reach the endpoint <http://localhost:8000/docs#/summaries/read_all_summaries_api_v2_summaries__get> and in the response you should see something like:
+5. This triggers the ML models to download, which may take a few minutes for the first run (in the current implementation). After that, reach the endpoint <http://localhost:8000/docs#/summaries/read_all_summaries_api_v2_summaries__get> and in the response you should see something like:
 
 ```json
 [
@@ -108,13 +108,13 @@ For production deployment, don't forget to change the ENVIRONMENT variables. The
 
 ### Note
 
-The current implementation of text summarization using the transformer model is not ideal for production due to the following reasons:
+The current implementation of text summarization using the transformer models is not ideal for production due to the following reasons:
 
 - The requirement to install a heavy transformers library along with its dependencies.
 - The necessity to download several gigabytes of the model.
 - The need for powerful hardware to run the model.
 
-Typically, in a production environment, the model would be provided via an API using services like AWS SageMaker or Paperspace Gradient.
+Typically, in a production environment, the models would be provided via an API using services like AWS SageMaker or Paperspace Gradient.
 
 ## License
 

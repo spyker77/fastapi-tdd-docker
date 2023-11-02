@@ -17,7 +17,9 @@ class Settings(BaseSettings):
     DATABASE_TEST_URL: str
     BROKER_URL: str
     RESULT_BACKEND: str
-    SUMMARIZER_MODEL: str
+    SUMMARIZER_MODEL_RU: str
+    SUMMARIZER_MODEL_EN: str
+    LANGUAGE_DETECTION_MODEL: str
 
     AUTH_TOKEN_URL: str = "/api/token"
     ORIGINS: List[str] = Field(["http://localhost", "https://localhost"])
