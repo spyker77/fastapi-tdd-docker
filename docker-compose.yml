@@ -2,13 +2,13 @@ version: '3.8'
 
 services:
   redis:
-    image: redis:7-alpine
+    image: redis:7.2-alpine
 
   rabbitmq:
-    image: rabbitmq:3.11-management
+    image: rabbitmq:3.13-rc-management
 
   db:
-    image: mysql:8.0
+    image: mysql:8.2-oracle
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
       - MYSQL_DATABASE=dev
