@@ -18,7 +18,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy PDM files and install python dependencies
-COPY pyproject.toml pdm.lock README.md ./
+COPY pyproject.toml pdm.lock ./
 RUN mkdir __pypackages__ && pdm sync --dev
 
 ###################
